@@ -1,0 +1,5 @@
+subdirs:
+  - async-bindings
+  - gpio
+  - udp-bindings
+  - coap-server-bindings

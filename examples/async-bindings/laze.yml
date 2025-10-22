@@ -1,5 +1,5 @@
 apps:
-  - name: wasm-bindings-async
+  - name: async-bindings
     selects:
       - hwrng
       - alloc
