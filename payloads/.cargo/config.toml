@@ -1,9 +1,7 @@
-[unstable]
-#build-std = ["core", "alloc", "panic_abort"]
-#build-std-features = ["panic_immediate_abort"]
-
+# Meant to be "imported" through the `precompiled_wasm` script.
 [build]
 rustflags = [
+    # Not required when using rust >= 1.90
     # "-Clinker=wasm-ld",
     "-Clink-arg=--page-size=1",
     "-Clink-arg=--initial-memory=30000",

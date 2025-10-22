@@ -24,7 +24,7 @@ ariel-os-embassy = { path = "build/imports/ariel-os/src/ariel-os-embassy", defau
 ariel-os-coap = { path = "build/imports/ariel-os/src/ariel-os-coap", default-features = false }
 ariel-os-random = { path = "build/imports/ariel-os/src/ariel-os-random", default-features = false }
 
-wasmtime = { git = "https://github.com/bytecodealliance/wasmtime", rev = "a70809d0caa4959b5d991c2770de821ab3c63930", default-features = false, features = ["pulley", "runtime", "component-model"]}
+wasmtime = { version = "38.0", default-features = false, features = ["pulley", "runtime", "component-model"]}
 
 embassy-futures = { version = "0.1.1", default-features = false }
 

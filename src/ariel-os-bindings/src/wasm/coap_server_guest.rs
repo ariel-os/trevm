@@ -4,17 +4,16 @@ use wasmtime::Store;
 use coap_handler::{Handler, Reporting};
 use coap_handler_implementations::{new_dispatcher, HandlerBuilder, ReportingHandlerBuilder, SimpleRendered};
 use coap_message_implementations::inmemory_write::GenericMessage;
-use coap_message::MessageOption;
 use coap_handler_implementations::wkc;
 
 pub use coap_message_utils::Error as CoAPError;
 
-use ariel_os_debug::log::{debug, info};
+// use ariel_os_debug::log::{debug, info};
 
 extern crate alloc;
 use alloc::vec::Vec;
 
-// Completely Useless
+// Completely Useless because exported interfaces don't create traits
 // bindgen!({
 //     world: "ariel:wasm-bindings/coap-server",
 //     path: "../../wit",
@@ -36,7 +35,6 @@ pub struct WasmHandler<T: 'static, G: CoapServerGuest> {
 
 /// FIXME: use trait function when the WithSortedOptions bound
 mod disable_sort_options_bound {
-    use ariel_os_debug::log::info;
     use coap_message::MessageOption;
     use coap_message::{Code, OptionNumber};
 

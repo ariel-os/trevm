@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.40", features = ["derive"]}
-wasmtime = { git = "https://github.com/bytecodealliance/wasmtime", rev = "a70809d0caa4959b5d991c2770de821ab3c63930", default-features = false, features = ["component-model", "async", "cranelift", "pulley"] }
+wasmtime = { version = "38.0", default-features = false, features = ["component-model", "async", "cranelift", "pulley"] }
 miette = { version = "7.2.0", features = ["fancy"] }
 thiserror = { version = "2.0.12" }
 

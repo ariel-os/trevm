@@ -39,17 +39,12 @@ impl Guest for MyComponent {
 
 fn coap_run(mut code: u8, observed_len: u32,  mut message: Vec<u8>) -> Result<(u8, Vec<u8>), CoapErr> {
     let mut handler = build_handler();
-    // info("A request was received, you love to see it");
 
     let reencoded = Message::new(code, &message[..observed_len as usize]);
-    // for o in reencoded.options() {
-    //     let formated = format!("Option {} {:?}", o.number(), o.value());
-    //     info(&formated);
-    // };
-
 
     let extracted = match handler.extract_request_data(&reencoded) {
         Ok(ex) => ex,
+        // Assume that if it failed it's because it wasn't found
         Err(_) => {
             return Err(CoapErr::NotFound);
         }
