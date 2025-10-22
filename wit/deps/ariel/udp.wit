@@ -3,7 +3,7 @@ interface udp-api {
     resource udp-socket {
         bind: static func(port: u16) -> result;
         send: static func(data: list<u8>, endpoint: udp-metadata) -> result;
-        recv: static func() -> result<option<tuple<list<u8>, udp-metadata>>>;
+        try-recv: static func() -> result<option<tuple<list<u8>, udp-metadata>>>;
     }
 
     record udp-metadata {
