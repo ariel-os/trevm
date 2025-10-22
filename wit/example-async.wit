@@ -1,0 +1,10 @@
+package example:example;
+
+world example-async {
+    import ariel:wasm-bindings/log-api@0.0.1;
+    import ariel:wasm-bindings/time-api@0.0.1;
+    import ariel:wasm-bindings/rng-api@0.0.1;
+
+    // start the component
+    export run: func();
+}

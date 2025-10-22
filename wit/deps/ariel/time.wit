@@ -1,0 +1,9 @@
+package ariel:wasm-bindings@0.0.1;
+interface time-api {
+    sleep: func(millis: u64);
+    now-as-millis: func() -> u64;
+}
+
+world time {
+    import time-api;
+}

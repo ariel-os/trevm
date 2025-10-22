@@ -1,0 +1,8 @@
+package ariel:wasm-bindings@0.0.1;
+interface log-api {
+    info: func(input: string);
+}
+
+world log {
+    import log-api;
+}

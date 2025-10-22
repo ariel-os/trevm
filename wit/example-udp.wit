@@ -1,0 +1,12 @@
+package example:example;
+
+world example-udp {
+    import ariel:wasm-bindings/log-api@0.0.1;
+    import ariel:wasm-bindings/udp-api@0.0.1;
+
+    // function that asks the component to bind the udp socket to a specific port
+    export bind-socket: func(port: u16);
+
+    // start the main loop of the component
+    export run: func();
+}

@@ -1,0 +1,45 @@
+package ariel:wasm-bindings@0.0.1;
+interface udp-api {
+    resource udp-socket {
+        bind: static func(port: u16) -> result;
+        send: static func(data: list<u8>, endpoint: udp-metadata) -> result;
+        recv: static func() -> result<option<tuple<list<u8>, udp-metadata>>>;
+    }
+
+    record udp-metadata {
+        endpoint: endpoint,
+        local-addr: option<ip-addr>,
+    }
+
+    variant ip-addr {
+        v4(ipv4-addr),
+        v6(ipv6-addr),
+    }
+
+    record ipv4-addr {
+        a: u8,
+        b: u8,
+        c: u8,
+        d: u8,
+    }
+
+    record ipv6-addr {
+        a: u16,
+        b: u16,
+        c: u16,
+        d: u16,
+        e: u16,
+        f: u16,
+        g: u16,
+        h: u16
+    }
+
+    record endpoint {
+        addr: ip-addr,
+        port: u16,
+    }
+}
+
+world udp {
+    import udp-api;
+}
