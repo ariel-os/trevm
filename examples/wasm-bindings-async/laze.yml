@@ -1,0 +1,11 @@
+apps:
+  - name: wasm-bindings-async
+    selects:
+      - hwrng
+      - alloc
+    env:
+      global:
+        # Default heapsize of the NRF52840DK, the board with the least amount of
+        # RAM that is known to support this example
+        heapsize_required:
+          - "243832"
