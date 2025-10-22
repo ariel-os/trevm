@@ -1,0 +1,13 @@
+[unstable]
+#build-std = ["core", "alloc", "panic_abort"]
+#build-std-features = ["panic_immediate_abort"]
+
+[build]
+rustflags = [
+    # "-Clinker=wasm-ld",
+    "-Clink-arg=--page-size=1",
+    "-Clink-arg=--initial-memory=65536",
+    "-Clink-arg=-zstack-size=1024",
+    "-Cpanic=abort",
+]
+target = "wasm32v1-none"
