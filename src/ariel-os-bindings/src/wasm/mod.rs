@@ -79,8 +79,8 @@ impl crate::wasm::udp::HostUdpSocket for ArielOSHost {
         self.udp_host.send(data, endpoint)
     }
 
-    fn recv(&mut self,) -> Result<Option<(wasmtime::component::__internal::Vec<u8>,udp::gen_udp::UdpMetadata,)>,()> {
-        self.udp_host.recv()
+    fn try_recv(&mut self,) -> Result<Option<(wasmtime::component::__internal::Vec<u8>,udp::gen_udp::UdpMetadata,)>,()> {
+        self.udp_host.try_recv()
     }
 
     fn drop(&mut self,rep:wasmtime::component::Resource<udp::gen_udp::UdpSocket>) -> wasmtime::Result<()> {

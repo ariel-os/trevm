@@ -174,9 +174,10 @@ impl HostUdpSocket for ArielUDPHost {
         }
     }
 
-    fn recv(&mut self) -> Result<Option<(Vec<u8>, gen_udp::UdpMetadata)>, ()> {
+    fn try_recv(&mut self) -> Result<Option<(Vec<u8>, gen_udp::UdpMetadata)>, ()> {
         match self.socket.as_ref() {
             Some(socket) => {
+                if !socket.may_recv() { return  Ok(None); }
                 let mut buf: Vec<u8> = core::iter::repeat_n(0, self.buffer_size).collect();
                     match block_on(socket.recv_from(&mut buf)) {
                         Err(_) => Err(()),
