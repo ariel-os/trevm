@@ -1,10 +1,12 @@
+use core::slice::Iter;
+
+use ariel_os_debug::log::info;
 // use wasmtime::component::bindgen;
 use wasmtime::Store;
 
-use coap_handler::{Handler, Reporting};
+use coap_handler::{Handler, Reporting, Record, Attribute};
 use coap_handler_implementations::{new_dispatcher, HandlerBuilder, ReportingHandlerBuilder, SimpleRendered};
 use coap_message_implementations::inmemory_write::GenericMessage;
-use coap_handler_implementations::wkc;
 
 pub use coap_message_utils::Error as CoAPError;
 
@@ -12,6 +14,7 @@ pub use coap_message_utils::Error as CoAPError;
 
 extern crate alloc;
 use alloc::vec::Vec;
+use alloc::string::String;
 
 // Completely Useless because exported interfaces don't create traits
 // bindgen!({
@@ -22,15 +25,28 @@ use alloc::vec::Vec;
 pub trait CoapServerGuest {
     type E: Into<CoAPError>;
     fn coap_run<T: 'static>(&mut self, store: &mut Store<T>, code:u8, observed_len: u32, message: Vec<u8>) -> Result<(u8, Vec<u8>), Self::E>;
+
+    fn initialize_handler<T: 'static>(&mut self, store: &mut Store<T>) -> Result<(), ()>;
+
+    fn report_resources<T: 'static>(&mut self, store: &mut Store<T>) -> Result<Vec<String>, Self::E>;
 }
 
 
 pub struct WasmHandler<T: 'static, G: CoapServerGuest> {
     store: Store<T>,
     instance: G,
+    paths: Vec<StringRecord>,
 }
 
-
+impl<T:'static, G: CoapServerGuest> WasmHandler<T, G> {
+    pub fn new(mut store: wasmtime::Store<T>, mut instance: G) -> Self {
+        instance.initialize_handler(&mut store).unwrap();
+        let paths = instance.report_resources(&mut store)
+            .map_err(|e| e.into())
+            .unwrap().into_iter().map(|s| StringRecord(s)).collect();
+        WasmHandler { store, instance, paths }
+    }
+}
 
 
 /// FIXME: use trait function when the WithSortedOptions bound
@@ -88,7 +104,6 @@ impl<T:'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
         let incoming_len = reencoded.finish();
 
         // info!("HOST len: {}\n {:?}", incoming_len, defmt::Debug2Format(&buffer));
-
         return self.instance.coap_run(&mut self.store, incoming_code, incoming_len as u32, buffer).map_err(|e| e.into());
     }
 
@@ -106,28 +121,51 @@ impl<T:'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
     }
 }
 
+pub struct StringRecord(String);
+
+impl<'a> Record for &'a StringRecord {
+    type PathElement = &'a String;
+    type PathElements = core::iter::Once<&'a String>;
+    type Attributes = core::iter::Empty<Attribute>;
+
+    fn attributes(&self) -> Self::Attributes {
+        core::iter::empty()
+    }
+
+    fn rel(&self) -> Option<&str> {
+        None
+    }
+
+    fn path(&self) -> Self::PathElements {
+        core::iter::once(&self.0)
+    }
+}
 
 impl<T: 'static, G: CoapServerGuest> Reporting for WasmHandler<T, G> {
     type Record<'a>
-        = wkc::EmptyRecord
+        = &'a StringRecord
     where
         Self: 'a;
+
     type Reporter<'a>
-        = core::iter::Once<wkc::EmptyRecord>
+        = Iter<'a, StringRecord>
     where
         Self: 'a;
 
     fn report(&self) -> Self::Reporter<'_> {
         // Using a ConstantSliceRecord instead would be tempting, but that'd need a const return
         // value from self.0.content_format()
-        core::iter::once(wkc::EmptyRecord {})
+
+        self.paths.iter()
+
+
     }
 }
 
 
 pub fn build_wasm_handler<T:'static, G: CoapServerGuest>(store: wasmtime::Store<T>, instance: G) -> impl Handler + Reporting {
     let handler = new_dispatcher()
-        .below(&["vm"], WasmHandler { store, instance })
+        .below(&["vm"], WasmHandler::new(store, instance))
         .at(&["hello"], SimpleRendered("Hello from the host"))
         .with_wkc();
 
