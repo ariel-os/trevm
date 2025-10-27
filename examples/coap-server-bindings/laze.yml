@@ -9,4 +9,4 @@ apps:
         # Under most of the observed heap sizes on the NRF52840DK.
         # Only relevant for the ESP32 chips which allocate an empty heap by default.
         heapsize_required:
-          - "200000"
+          - "150000"

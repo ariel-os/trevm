@@ -116,6 +116,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62940de3d016deb4c2e8bf5062435d69eba7f2c64b35537de4c56586db52231c"
 
 [[package]]
+name = "coap-server-component"
+version = "0.1.0"
+dependencies = [
+ "coap-handler",
+ "coap-handler-implementations",
+ "coap-message",
+ "coap-message-implementations",
+ "coap-message-utils",
+ "coap-numbers",
+ "talc",
+ "wit-bindgen",
+]
+
+[[package]]
 name = "crc"
 version = "3.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -319,20 +333,6 @@ name = "minicbor"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f182275033b808ede9427884caa8e05fa7db930801759524ca7925bd8aa7a82"
-
-[[package]]
-name = "my-first-wasm-component"
-version = "0.1.0"
-dependencies = [
- "coap-handler",
- "coap-handler-implementations",
- "coap-message",
- "coap-message-implementations",
- "coap-message-utils",
- "coap-numbers",
- "talc",
- "wit-bindgen",
-]
 
 [[package]]
 name = "num-traits"
@@ -567,6 +567,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen"
 version = "0.46.0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen/?rev=1fa44c80e59c582c1d5f23640d539de90d7f6a29#1fa44c80e59c582c1d5f23640d539de90d7f6a29"
 dependencies = [
  "wit-bindgen-rust-macro",
 ]
@@ -574,6 +575,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-core"
 version = "0.46.0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen/?rev=1fa44c80e59c582c1d5f23640d539de90d7f6a29#1fa44c80e59c582c1d5f23640d539de90d7f6a29"
 dependencies = [
  "anyhow",
  "heck",
@@ -583,6 +585,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-rust"
 version = "0.46.0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen/?rev=1fa44c80e59c582c1d5f23640d539de90d7f6a29#1fa44c80e59c582c1d5f23640d539de90d7f6a29"
 dependencies = [
  "anyhow",
  "heck",
@@ -597,6 +600,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-rust-macro"
 version = "0.46.0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen/?rev=1fa44c80e59c582c1d5f23640d539de90d7f6a29#1fa44c80e59c582c1d5f23640d539de90d7f6a29"
 dependencies = [
  "anyhow",
  "prettyplease",

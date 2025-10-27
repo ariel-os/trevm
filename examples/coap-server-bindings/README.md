@@ -2,11 +2,17 @@
 
 ## About
 
-This Examples shows how to run a coap-server through a wasm capsule by deferring the processing of selects message (such as all those asking for a resource under `/vm`) to the capsule.
+This example shows how to run a coap-server through a wasm capsule by deferring the processing of selects message (such as all those asking for a resource under `/vm`) to the capsule.
 
 ## Security
 
-As of today (22.10.25), security using the laze module `coap-server-config-demokeys` is untested. Testing and stabilization of this is planned and expcted to take some minor changes in `ariel-os-bindings`.
+Secure connections can be enabled by using the `-s coap-server-config-storage`. This will read and apply the permissions set in [`peers.yml`](./peers.yml). At startup, you should see a log looking like
+```sh
+[INFO ] CoAP server identity: {8: ... }
+```
+You should replace `{2: "", 8: ...}` by the server identity in the `peer_creed` field of [`client.diag`](./client.diag) before using it in client calls.
+
+Note: OSCORE requires CoAP options to be sorted which is not currently guaranteed by our handler implementations. This could case the server to crash in some scenarios. In our testing, the worse we could achieve was to simply get a message rejected when it shouldn't have. In the current state, achieving this requires contrived examples which is why we still choose to showcase security options.
 
 ## How to run
 
@@ -16,6 +22,14 @@ Look [here](../README.md#networking) for information about network configuration
 # Example for running on the RP Pico 2 W using wifi
 CONFIG_WIFI_NETWORK=... CONFIG_WIFI_PASSWORD=... laze build -b rpi-pico-2-w -s wifi-cyw43 -s coap-server-config-unprotected run
 ```
+
+Once the server is set-up, in another terminal, you can send request by using
+```sh
+# optionally add --credential client.diag to use secure connections
+pipx run --specs 'aiocoap[oscore, prettyprint]' aiocoap-client coap://<Address of the server>/vm/example
+```
+
+It's possible to get the resource that are provided to the server by `GET`ting `.well-known/core`
 
 This example has been tested on the following boards:
 - NRF52840DK using the `usb-ethernet` and `network-config-ipv4-static` modules.
