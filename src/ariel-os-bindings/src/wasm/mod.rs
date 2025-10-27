@@ -13,6 +13,8 @@ pub mod udp;
 #[cfg(feature = "coap-server-guest")]
 pub mod coap_server_guest;
 
+#[cfg(feature = "gpio")]
+pub mod gpio;
 
 #[derive(Default)]
 pub struct ArielOSHost {
@@ -27,6 +29,9 @@ pub struct ArielOSHost {
 
     #[cfg(feature = "udp")]
     udp_host: crate::wasm::udp::ArielUDPHost,
+
+    #[cfg(feature = "gpio")]
+    gpio_host: crate::wasm::gpio::ArielGpioHost,
 }
 
 #[cfg(feature = "log")]

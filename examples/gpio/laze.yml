@@ -1,0 +1,6 @@
+apps:
+  - name: gpio-wasm
+    selects:
+      - has_buttons
+      - has_leds
+      - alloc

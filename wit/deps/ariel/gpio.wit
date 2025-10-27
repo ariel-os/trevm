@@ -1,0 +1,14 @@
+package ariel:wasm-bindings@0.0.1;
+
+interface gpio-api {
+    // There is one led and one button for now
+    // wait for the button to be pressed, return Err if there is not button
+    wait-for-button-low: func() -> result;
+
+    // Toggle Led, errors if there is now LED available
+    toggle-led: func() -> result;
+}
+
+world gpio {
+    import gpio-api;
+}

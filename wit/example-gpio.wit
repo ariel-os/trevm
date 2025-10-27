@@ -1,0 +1,9 @@
+package example:example;
+
+world example-gpio {
+    import ariel:wasm-bindings/log-api@0.0.1;
+    import ariel:wasm-bindings/gpio-api@0.0.1;
+    import ariel:wasm-bindings/time-api@0.0.1;
+
+    export blinky: func();
+}
