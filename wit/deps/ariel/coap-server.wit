@@ -10,8 +10,14 @@ interface coap-server-guest {
     // Will be expanded to cover more errors at some point
     enum coap-err {
         not-found,
-        internal-server-error
+        internal-server-error,
+        handler-not-built,
     }
+
+    // Implement the Reporting Trait from coap_handler
+    report: func() -> result<list<string>, coap-err>;
+
+    initialize-handler: func() -> result;
 }
 
 world coap-server {
