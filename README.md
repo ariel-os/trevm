@@ -3,7 +3,8 @@ This repository showcases small Rust embedded virtual machines, encapsuled and b
 
 ## WebAssembly
 
-Currently, the only type of VM that has been tested with Ariel OS is WebAssembly. Currently, [Wasmtime](https://github.com/bytecodealliance/wasmtime) is the only WebAssembly runtime that is supported. Notee: support for this is experimental and the implementation is subject to change.
+Currently, the only type of VM that has been tested with Ariel OS is WebAssembly. Currently, [Wasmtime](https://github.com/bytecodealliance/wasmtime) is the only WebAssembly runtime that is supported.
+Note: Support for this is experimental and the implementation is subject to change.
 
 ### Setup & Requirements
 
@@ -31,6 +32,7 @@ cargo +nightly -Z script precompile_wasm.rs --toolchain "+nightly-2025-09-01" --
 ```
 
 ## Examples
-- [Async Bindings for RNG, Timer, Log](https://github.com/ariel-os/trevm/tree/main/examples/async-bindings): This example shows how Ariel OS can asynchronously run wasm components that yield regularly and that call asynchronous host functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w
-- [UDP Bindings](https://github.com/ariel-os/trevm/tree/main/examples/udp-bindings): This example showcases how a wasm capsule can receive and send UDP packets by using the approriate functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1
-- [CoAP Server Bindings](https://github.com/ariel-os/trevm/tree/main/examples/coap-server-bindings): This example shows how to run a coap-server through a wasm capsule by deferring the processing of selects message to the wasm capsule. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1
+- [Async Bindings for RNG, Timer, Log](./examples/async-bindings): This example shows how Ariel OS can asynchronously run wasm components that yield regularly and that call asynchronous host functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w
+- [UDP Bindings](./examples/udp-bindings): This example showcases how a wasm capsule can receive and send UDP packets by using the approriate functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1
+- [CoAP Server Bindings](./examples/coap-server-bindings): This example shows how to run a coap-server through a wasm capsule by deferring the processing of selects message to the wasm capsule. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1
+- [GPIO through Wasm](./examples/gpio/): This example showcases a simple blinky running through a wasm capsule. *Recommanded boards for this example*: nrf52840dk, nrf9160dk
