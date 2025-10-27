@@ -129,7 +129,7 @@ fn main() -> miette::Result<()> {
             args.extend(additional.iter().map(String::as_str));
 
 
-            args.extend(["--target-dir", "temp"]);
+            args.extend(["--target-dir", "target"]);
 
             std::println!("{:?}", args);
 
@@ -149,10 +149,10 @@ fn main() -> miette::Result<()> {
             }
 
 
-            format!("temp/wasm32v1-none/release/{name}.wasm").into()
+            format!("target/wasm32v1-none/release/{name}.wasm").into()
         },
         _ => {
-            Err(io::Error::new(io::ErrorKind::InvalidInput, "--path should be wasm file or a path to Cargo.toml manifest")).map_err(Error::from)?
+            Err(io::Error::new(io::ErrorKind::InvalidInput, "--path should be wasm file or a path to a Cargo.toml manifest")).map_err(Error::from)?
         }
     };
 
@@ -192,9 +192,6 @@ fn main() -> miette::Result<()> {
         std::fs::remove_file("temp.wasm").map_err(Error::from)?;
     } else {
         precompile(&new_path, fuel, out, module)?;
-    }
-    if fs::exists("temp").map_err(Error::from)? {
-        std::fs::remove_dir_all("temp").map_err(Error::from)?;
     }
 
     Ok(())
