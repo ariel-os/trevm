@@ -10,10 +10,8 @@ The wit files defining the interface of the bindings and the contents of the com
 ## How to run
 
 In this directory, run
+```
+laze build -b nrf52840dk run
+```
 
-    laze build -b nrf52840dk run
-
-This example has only been tested using `network-config-static` which uses the hardcoded `10.41.0.61/24` IP adress.
-Look [here](../README.md#networking) for more information about network configuration.
-
-This example has also been tested on the `rpi-pico2-w` board. This example will not work on RISCV MCUs (such as the ESP32-C6) because wasmtime, the WebAssembly runtime that this example use, doesn't support asynchronous execution of components on such MCUs.
+This example has also been tested on the `rpi-pico2-w` board. This example will not work on RISCV 32 bits MCUs (such as the ESP32-C6) because wasmtime, the WebAssembly runtime that this example use, doesn't support asynchronous execution of components on such architectures.

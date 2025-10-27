@@ -18,7 +18,6 @@ bindgen!({
         "ariel:wasm-bindings/log-api": ariel_os_bindings::wasm::log,
         "ariel:wasm-bindings/rng-api": ariel_os_bindings::wasm::rng,
         "ariel:wasm-bindings/time-api": ariel_os_bindings::wasm::time,
-
     },
     imports: { default: async },
     exports: { default: async },
