@@ -213,6 +213,16 @@ fn precompile<P: AsRef<Path>>(path: P, fuel: bool, out: PathBuf, module: bool) -
     config.wasm_custom_page_sizes(true);
     config.target("pulley32").map_err(Error::from)?;
 
+    // 0 means limiting ourselves to what the module asked
+    // This needs to be set at pre-compile time and at runtime in the engine
+    config.memory_reservation(0);
+
+    // Disabling this allows runtime optimizations but means that the maximum memory
+    // that the module can have is
+    // S = min(initial_memory, memory_reservation) + memory_reserver_for_growth
+    // since it can grow by reallocating.
+    config.memory_may_move(false);
+
     // Enable fuel intstrumentation to prevent malevolent code from running indefinitely in the VM
     config.consume_fuel(fuel);
 
