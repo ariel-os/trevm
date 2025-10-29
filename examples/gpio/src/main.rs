@@ -39,16 +39,23 @@ async fn main(peris: Peripherals) {
 
 async fn run_wasm(peris: Peripherals) -> wasmtime::Result<()> {
     let mut config = Config::default();
-    config.max_wasm_stack(2048);
+
+    // Options that must conform with the precompilation step
     config.wasm_custom_page_sizes(true);
-    config.target("pulley32")?;
+    config.target("pulley32").unwrap();
+
+    config.table_lazy_init(false);
     config.memory_reservation(0);
     config.memory_init_cow(false);
-    config.memory_reservation_for_growth(0);
     config.memory_may_move(false);
+
+    // Options that can be changed without changing the payload
+    config.max_wasm_stack(2048);
+    config.memory_reservation_for_growth(0);
+
+    // Options relating to async
     config.async_support(true);
     config.async_stack_size(4096);
-
 
 
     let led1 = Output::new(peris.leds.led0, Level::Low);

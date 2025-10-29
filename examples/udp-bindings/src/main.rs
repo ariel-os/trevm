@@ -35,17 +35,22 @@ async fn main() {
 /// Misconfiguration of Wasmtime or of the component
 async fn run_wasm() -> wasmtime::Result<()> {
     let mut config = Config::default();
-    config.max_wasm_stack(2048);
+
+    // Options that must conform with the precompilation step
     config.wasm_custom_page_sizes(true);
-    config.target("pulley32")?;
+    config.target("pulley32").unwrap();
+
+    config.table_lazy_init(false);
     config.memory_reservation(0);
     config.memory_init_cow(false);
-    config.memory_reservation_for_growth(0);
     config.memory_may_move(false);
+
+    // Options that can be changed without changing the payload
+    config.max_wasm_stack(2048);
+    config.memory_reservation_for_growth(0);
 
     // Use fuel instrumentation to prevent indefinite execution
     config.consume_fuel(true);
-
 
     let engine = Engine::new(&config)?;
     let component_bytes = include_bytes!("../payload.cwasm");
