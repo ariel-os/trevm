@@ -6,7 +6,7 @@ In the following sections we consider how different (pre-)compilation options af
 
 Everything was tested with
 ```shell
-$ rustc -vV
+$ rustc +nightly -vV
 rustc 1.92.0-nightly (7c275d09e 2025-09-18)
 binary: rustc
 commit-hash: 7c275d09ea6b953d2cca169667184a7214bd14c7
