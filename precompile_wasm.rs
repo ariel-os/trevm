@@ -16,7 +16,7 @@ use std::io::BufRead as _;
 use clap::Parser;
 use miette::Diagnostic;
 
-use wasmtime::{Config, Engine};
+use wasmtime::{Config, Engine, OptLevel};
 
 
 /// Simple CLI that takes a compiled .wasm file and turns into a precompiled-component
@@ -129,7 +129,7 @@ fn main() -> miette::Result<()> {
             args.extend(additional.iter().map(String::as_str));
 
 
-            args.extend(["--target-dir", "target"]);
+            args.extend(["--target-dir", "temp"]);
 
             std::println!("{:?}", args);
 
@@ -149,7 +149,7 @@ fn main() -> miette::Result<()> {
             }
 
 
-            format!("target/wasm32v1-none/release/{name}.wasm").into()
+            format!("temp/wasm32v1-none/release/{name}.wasm").into()
         },
         _ => {
             Err(io::Error::new(io::ErrorKind::InvalidInput, "--path should be wasm file or a path to a Cargo.toml manifest")).map_err(Error::from)?
@@ -193,6 +193,9 @@ fn main() -> miette::Result<()> {
     } else {
         precompile(&new_path, fuel, out, module)?;
     }
+    if std::fs::exists("temp").map_err(Error::from)? {
+        std::fs::remove_dir_all("temp").map_err(Error::from)?;
+    }
 
     Ok(())
 }
@@ -200,15 +203,14 @@ fn main() -> miette::Result<()> {
 fn precompile<P: AsRef<Path>>(path: P, fuel: bool, out: PathBuf, module: bool) -> miette::Result<()> {
     std::println!("Precompiling Wasm Module/Component");
     let mut config = Config::new();
-    // Tell how the memory is expected to behave when instantiated
-    config.memory_reservation(0);
-    config.wasm_custom_page_sizes(true);
-    config.memory_may_move(false);
+
+    // Options found to reduce the output code size the most at least for components
     config.memory_init_cow(false);
+    config.generate_address_map(false);
+    config.table_lazy_init(false);
+    config.cranelift_opt_level(OptLevel::Speed);
 
-
-    // Optimize for Code size in the .cwasm
-    config.cranelift_opt_level(wasmtime::OptLevel::SpeedAndSize);
+    config.wasm_custom_page_sizes(true);
     config.target("pulley32").map_err(Error::from)?;
 
     // Enable fuel intstrumentation to prevent malevolent code from running indefinitely in the VM
