@@ -2,7 +2,6 @@ apps:
   - name: udp-bindings
     selects:
       - network
-      - hwrng
       - alloc
     env:
       global:
