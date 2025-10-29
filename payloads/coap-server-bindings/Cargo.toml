@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-# FIXME: CHANGE WHEN THE FIX IS RELEASED on GitHub
+# FIXME: CHANGE WHEN THE FIX IS RELEASED ON CRATES.IO
 wit-bindgen = { git = "https://github.com/bytecodealliance/wit-bindgen/", rev = "1fa44c80e59c582c1d5f23640d539de90d7f6a29" , default-features = false, features = ["macros"] }
 talc = { version = "4.4.3", default-features = false, features = ["lock_api"]}
 coap-handler-implementations = "0.5.0"
@@ -17,11 +17,3 @@ coap-message-utils = "0.3.0"
 
 [lib]
 crate-type = ["cdylib"]
-
-[profile.release]
-opt-level="z"
-codegen-units = 1
-lto = "fat"
-debug = false
-strip = "symbols"
-incremental = false
