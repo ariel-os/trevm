@@ -1,7 +1,5 @@
 use core::slice::Iter;
 
-use ariel_os_debug::log::info;
-// use wasmtime::component::bindgen;
 use wasmtime::Store;
 
 use coap_handler::{Attribute, Handler, Record, Reporting};
@@ -11,8 +9,6 @@ use coap_handler_implementations::{
 use coap_message_implementations::inmemory_write::GenericMessage;
 
 pub use coap_message_utils::Error as CoAPError;
-
-// use ariel_os_debug::log::{debug, info};
 
 extern crate alloc;
 use alloc::string::String;
@@ -115,7 +111,6 @@ impl<T: 'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
         reencoded.set_from_message2(request).unwrap();
         let incoming_len = reencoded.finish();
 
-        // info!("HOST len: {}\n {:?}", incoming_len, defmt::Debug2Format(&buffer));
         return self
             .instance
             .coap_run(&mut self.store, incoming_code, incoming_len as u32, buffer)
