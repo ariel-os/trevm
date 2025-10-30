@@ -2,7 +2,7 @@
 #![no_std]
 
 use ariel_os::coap::coap_run;
-use ariel_os::debug::log::{defmt, info};
+use ariel_os::debug::log::{defmt, error, info};
 use ariel_os::debug::{ExitCode, exit};
 
 use ariel_os::time::Timer;
@@ -47,24 +47,56 @@ impl CoapServerGuest for ExampleCoapServer {
         observed_len: u32,
         buffer: Vec<u8>,
     ) -> Result<(u8, Vec<u8>), Self::E> {
-        self.ariel_wasm_bindings_coap_server_guest()
-            .call_coap_run(store, code, observed_len, &buffer)
-            .unwrap()
+        match self.ariel_wasm_bindings_coap_server_guest().call_coap_run(
+            store,
+            code,
+            observed_len,
+            &buffer,
+        ) {
+            Ok(coap_rep) => coap_rep,
+            Err(wasm_error) => {
+                error!(
+                    "The capsule has crashed, CoAP requests to it will return 5.00 \n{}",
+                    defmt::Display2Format(&wasm_error)
+                );
+                return Err(CoapErr::InternalServerError);
+            }
+        }
     }
 
     fn initialize_handler<T: 'static>(&mut self, store: &mut Store<T>) -> Result<(), ()> {
-        self.ariel_wasm_bindings_coap_server_guest()
+        match self
+            .ariel_wasm_bindings_coap_server_guest()
             .call_initialize_handler(store)
-            .unwrap()
+        {
+            Ok(handler_init_rep) => handler_init_rep,
+            Err(wasm_error) => {
+                error!(
+                    "The capsule has crashed at startup, CoAP requests to it will return 5.00 \n{}",
+                    defmt::Display2Format(&wasm_error)
+                );
+                Err(())
+            }
+        }
     }
 
     fn report_resources<T: 'static>(
         &mut self,
         store: &mut Store<T>,
     ) -> Result<Vec<String>, Self::E> {
-        self.ariel_wasm_bindings_coap_server_guest()
+        match self
+            .ariel_wasm_bindings_coap_server_guest()
             .call_report(store)
-            .unwrap()
+        {
+            Ok(handler_init_rep) => handler_init_rep,
+            Err(wasm_error) => {
+                error!(
+                    "The capsule has crashed at startup, CoAP requests to it will return 5.03 \n{}",
+                    defmt::Display2Format(&wasm_error)
+                );
+                Err(CoapErr::HandlerNotBuilt)
+            }
+        }
     }
 }
 
