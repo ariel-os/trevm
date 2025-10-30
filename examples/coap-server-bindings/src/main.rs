@@ -2,22 +2,18 @@
 #![no_std]
 
 use ariel_os::coap::coap_run;
-use ariel_os::debug::{exit, ExitCode};
-use ariel_os::debug::{log::{info, defmt}};
+use ariel_os::debug::log::{defmt, info};
+use ariel_os::debug::{ExitCode, exit};
 
 use ariel_os::time::Timer;
+use wasmtime::component::{Component, HasSelf, Linker, bindgen};
 use wasmtime::{Config, Engine, Store};
-use wasmtime::component::{bindgen, Component, HasSelf, Linker};
 
 extern crate alloc;
-use alloc::vec::Vec;
 use alloc::string::String;
+use alloc::vec::Vec;
 
-use ariel_os_bindings::wasm::coap_server_guest::{
-    CoapServerGuest,
-    CoAPError,
-    build_wasm_handler,
-};
+use ariel_os_bindings::wasm::coap_server_guest::{CoAPError, CoapServerGuest, build_wasm_handler};
 
 use ariel_os_bindings::wasm::ArielOSHost;
 
@@ -29,10 +25,9 @@ bindgen!({
     }
 });
 
- use crate::exports::ariel::wasm_bindings::coap_server_guest::CoapErr;
+use crate::exports::ariel::wasm_bindings::coap_server_guest::CoapErr;
 
 impl Into<CoAPError> for CoapErr {
-
     fn into(self) -> CoAPError {
         match self {
             CoapErr::NotFound => CoAPError::not_found(),
@@ -40,26 +35,38 @@ impl Into<CoAPError> for CoapErr {
             CoapErr::HandlerNotBuilt => CoAPError::internal_server_error(),
             // _ => CoAPError::internal_server_error(),
         }
-
     }
 }
 
 impl CoapServerGuest for ExampleCoapServer {
     type E = CoapErr;
-    fn coap_run<T: 'static>(&mut self, store: &mut Store::<T>, code: u8, observed_len: u32, buffer: Vec<u8>) -> Result<(u8, Vec<u8>), Self::E> {
-        self.ariel_wasm_bindings_coap_server_guest().call_coap_run(store, code, observed_len, &buffer).unwrap()
+    fn coap_run<T: 'static>(
+        &mut self,
+        store: &mut Store<T>,
+        code: u8,
+        observed_len: u32,
+        buffer: Vec<u8>,
+    ) -> Result<(u8, Vec<u8>), Self::E> {
+        self.ariel_wasm_bindings_coap_server_guest()
+            .call_coap_run(store, code, observed_len, &buffer)
+            .unwrap()
     }
 
     fn initialize_handler<T: 'static>(&mut self, store: &mut Store<T>) -> Result<(), ()> {
-        self.ariel_wasm_bindings_coap_server_guest().call_initialize_handler(store).unwrap()
+        self.ariel_wasm_bindings_coap_server_guest()
+            .call_initialize_handler(store)
+            .unwrap()
     }
 
-    fn report_resources<T: 'static>(&mut self, store: &mut Store<T>) -> Result<Vec<String>, Self::E> {
-        self.ariel_wasm_bindings_coap_server_guest().call_report(store).unwrap()
+    fn report_resources<T: 'static>(
+        &mut self,
+        store: &mut Store<T>,
+    ) -> Result<Vec<String>, Self::E> {
+        self.ariel_wasm_bindings_coap_server_guest()
+            .call_report(store)
+            .unwrap()
     }
 }
-
-
 
 #[ariel_os::task(autostart)]
 async fn main() {
@@ -68,9 +75,6 @@ async fn main() {
     Timer::after_millis(100).await;
     exit(ExitCode::SUCCESS);
 }
-
-
-
 
 async fn run_wasm_coap_server() -> wasmtime::Result<()> {
     let mut config = Config::default();
@@ -100,7 +104,7 @@ async fn run_wasm_coap_server() -> wasmtime::Result<()> {
 
     let mut linker = Linker::new(&engine);
 
-    ExampleCoapServer::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| { state })?;
+    ExampleCoapServer::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)?;
     let instance = ExampleCoapServer::instantiate(&mut store, &component, &linker)?;
 
     let handler = build_wasm_handler(store, instance);
@@ -117,12 +121,16 @@ static mut TLS_PTR: u32 = 0;
 #[unsafe(no_mangle)]
 extern "C" fn wasmtime_tls_get() -> *mut u8 {
     #[allow(unsafe_code)]
-    unsafe { TLS_PTR as *mut u8 }
+    unsafe {
+        TLS_PTR as *mut u8
+    }
 }
 
 #[allow(unsafe_code)]
 #[unsafe(no_mangle)]
 extern "C" fn wasmtime_tls_set(val: *const u8) {
     #[allow(unsafe_code)]
-    unsafe { TLS_PTR = val as u32 };
+    unsafe {
+        TLS_PTR = val as u32
+    };
 }

@@ -36,7 +36,7 @@ pub struct ArielOSHost {
 
 #[cfg(feature = "log")]
 impl crate::wasm::log::Host for ArielOSHost {
-    fn info(&mut self,input:wasmtime::component::__internal::String) -> () {
+    fn info(&mut self, input: wasmtime::component::__internal::String) -> () {
         self.log_host.info(input);
     }
 }
@@ -54,16 +54,19 @@ impl crate::wasm::time::Host for ArielOSHost {
 
 #[cfg(feature = "rng")]
 impl crate::wasm::rng::HostRNG for ArielOSHost {
-    fn next_u32(&mut self,) -> u32 {
+    fn next_u32(&mut self) -> u32 {
         self.rng_host.next_u32()
     }
-    fn next_u64(&mut self,) -> u64 {
+    fn next_u64(&mut self) -> u64 {
         self.rng_host.next_u64()
     }
-    fn random_bytes(&mut self,len: u32) -> wasmtime::component::__internal::Vec<u8> {
+    fn random_bytes(&mut self, len: u32) -> wasmtime::component::__internal::Vec<u8> {
         self.rng_host.random_bytes(len)
     }
-    fn drop(&mut self, rep: wasmtime::component::Resource<crate::wasm::rng::RNG>) -> wasmtime::Result<()> {
+    fn drop(
+        &mut self,
+        rep: wasmtime::component::Resource<crate::wasm::rng::RNG>,
+    ) -> wasmtime::Result<()> {
         self.rng_host.drop(rep)
     }
 }
@@ -76,32 +79,51 @@ impl crate::wasm::udp::Host for ArielOSHost {}
 
 #[cfg(feature = "udp")]
 impl crate::wasm::udp::HostUdpSocket for ArielOSHost {
-    fn bind(&mut self,port:u16,) -> Result<(),()> {
+    fn bind(&mut self, port: u16) -> Result<(), ()> {
         self.udp_host.bind(port)
     }
 
-    fn send(&mut self,data:wasmtime::component::__internal::Vec<u8>,endpoint:udp::gen_udp::UdpMetadata,) -> Result<(),()> {
+    fn send(
+        &mut self,
+        data: wasmtime::component::__internal::Vec<u8>,
+        endpoint: udp::gen_udp::UdpMetadata,
+    ) -> Result<(), ()> {
         self.udp_host.send(data, endpoint)
     }
 
-    fn try_recv(&mut self,) -> Result<Option<(wasmtime::component::__internal::Vec<u8>,udp::gen_udp::UdpMetadata,)>,()> {
+    fn try_recv(
+        &mut self,
+    ) -> Result<
+        Option<(
+            wasmtime::component::__internal::Vec<u8>,
+            udp::gen_udp::UdpMetadata,
+        )>,
+        (),
+    > {
         self.udp_host.try_recv()
     }
 
-    fn drop(&mut self,rep:wasmtime::component::Resource<udp::gen_udp::UdpSocket>) -> wasmtime::Result<()> {
+    fn drop(
+        &mut self,
+        rep: wasmtime::component::Resource<udp::gen_udp::UdpSocket>,
+    ) -> wasmtime::Result<()> {
         self.udp_host.drop(rep)
     }
 }
 
 #[cfg(feature = "udp")]
 impl ArielOSHost {
-    pub unsafe fn initialize_socket(&mut self,
+    pub unsafe fn initialize_socket(
+        &mut self,
         stack: ariel_os_embassy::NetworkStack,
         rx_meta: &mut [ariel_os_embassy::reexports::embassy_net::udp::PacketMetadata],
         rx_buffer: &mut [u8],
         tx_meta: &mut [ariel_os_embassy::reexports::embassy_net::udp::PacketMetadata],
         tx_buffer: &mut [u8],
     ) {
-        unsafe { self.udp_host.initialize_socket(stack, rx_meta, rx_buffer, tx_meta, tx_buffer) };
+        unsafe {
+            self.udp_host
+                .initialize_socket(stack, rx_meta, rx_buffer, tx_meta, tx_buffer)
+        };
     }
 }

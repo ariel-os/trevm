@@ -1,6 +1,6 @@
 use wasmtime::component::bindgen;
 
-use ariel_os_embassy::api::time::{Timer, Instant};
+use ariel_os_embassy::api::time::{Instant, Timer};
 
 bindgen!({
     world: "ariel:wasm-bindings/time",

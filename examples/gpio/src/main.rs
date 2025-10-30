@@ -3,14 +3,16 @@
 
 use ariel_os_boards::pins;
 
-use ariel_os::{debug::{exit, log::{defmt, info}, ExitCode}};
+use ariel_os::debug::{
+    ExitCode, exit,
+    log::{defmt, info},
+};
 use ariel_os::gpio::{Input, Level, Output, Pull};
 
+use wasmtime::component::{Component, HasSelf, Linker, bindgen};
 use wasmtime::{Config, Engine, Store};
-use wasmtime::component::{bindgen, Component, HasSelf, Linker};
 
 use ariel_os_bindings::wasm::ArielOSHost;
-
 
 bindgen!({
     world: "example-gpio",
@@ -28,7 +30,6 @@ ariel_os::hal::group_peripherals!(Peripherals {
     leds: pins::LedPeripherals,
     buttons: pins::ButtonPeripherals,
 });
-
 
 #[ariel_os::task(autostart, peripherals)]
 async fn main(peris: Peripherals) {
@@ -57,7 +58,6 @@ async fn run_wasm(peris: Peripherals) -> wasmtime::Result<()> {
     config.async_support(true);
     config.async_stack_size(4096);
 
-
     let led1 = Output::new(peris.leds.led0, Level::Low);
     let pull = Pull::Up;
 
@@ -72,21 +72,20 @@ async fn run_wasm(peris: Peripherals) -> wasmtime::Result<()> {
 
     let component_bytes = include_bytes!("../payload.cwasm");
 
-    let component = unsafe { Component::deserialize_raw(&engine, component_bytes.as_slice().into()) }?;
+    let component =
+        unsafe { Component::deserialize_raw(&engine, component_bytes.as_slice().into()) }?;
 
     let mut store = Store::new(&engine, host);
 
     let mut linker = Linker::new(&engine);
 
-    ExampleGpio::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| {state})?;
+    ExampleGpio::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)?;
     let bindings = ExampleGpio::instantiate_async(&mut store, &component, &mut linker).await?;
 
     bindings.call_blinky(&mut store).await?;
 
     Ok(())
 }
-
-
 
 // Same as https://github.com/bytecodealliance/wasmtime/blob/main/examples/min-platform/embedding/wasmtime-platform.c
 // I have no idea whether this is safe or not.
@@ -99,5 +98,5 @@ extern "C" fn wasmtime_tls_get() -> *mut u8 {
 
 #[unsafe(no_mangle)]
 extern "C" fn wasmtime_tls_set(val: *const u8) {
-   unsafe { TLS_PTR = val as u32 };
+    unsafe { TLS_PTR = val as u32 };
 }

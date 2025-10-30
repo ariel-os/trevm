@@ -1,11 +1,14 @@
 #![no_main]
 #![no_std]
 
-use ariel_os::debug::{exit, log::{defmt, info}, ExitCode};
+use ariel_os::debug::{
+    ExitCode, exit,
+    log::{defmt, info},
+};
 use ariel_os::time::{Duration, Instant, Timer, with_timeout};
 
+use wasmtime::component::{Component, HasSelf, Linker, bindgen};
 use wasmtime::{Config, Engine, Store};
-use wasmtime::component::{bindgen, Component, HasSelf, Linker};
 
 // extern crate alloc;
 
@@ -36,7 +39,6 @@ async fn main() {
     exit(ExitCode::SUCCESS);
 }
 
-
 /// # Errors
 /// Misconfiguration of Wasmtime or of the component
 async fn run_wasm() -> wasmtime::Result<()> {
@@ -65,7 +67,8 @@ async fn run_wasm() -> wasmtime::Result<()> {
     let engine = Engine::new(&config)?;
     let component_bytes = include_bytes!("../payload.cwasm");
 
-    let component = unsafe { Component::deserialize_raw(&engine, component_bytes.as_slice().into()) }?;
+    let component =
+        unsafe { Component::deserialize_raw(&engine, component_bytes.as_slice().into()) }?;
 
     let host = ArielOSHost::default();
 
@@ -79,15 +82,13 @@ async fn run_wasm() -> wasmtime::Result<()> {
 
     let mut linker = Linker::new(&engine);
 
-    ExampleAsync::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| {state})?;
+    ExampleAsync::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)?;
     let bindings = ExampleAsync::instantiate_async(&mut store, &component, &linker).await?;
 
     bindings.call_run(&mut store).await?;
 
     Ok(())
 }
-
-
 
 // Same as https://github.com/bytecodealliance/wasmtime/blob/main/examples/min-platform/embedding/wasmtime-platform.c
 // I have no idea whether this is safe or not.
@@ -100,5 +101,5 @@ extern "C" fn wasmtime_tls_get() -> *mut u8 {
 
 #[unsafe(no_mangle)]
 extern "C" fn wasmtime_tls_set(val: *const u8) {
-   unsafe { TLS_PTR = val as u32 };
+    unsafe { TLS_PTR = val as u32 };
 }

@@ -4,8 +4,10 @@ use ariel_os_debug::log::info;
 // use wasmtime::component::bindgen;
 use wasmtime::Store;
 
-use coap_handler::{Handler, Reporting, Record, Attribute};
-use coap_handler_implementations::{new_dispatcher, HandlerBuilder, ReportingHandlerBuilder, SimpleRendered};
+use coap_handler::{Attribute, Handler, Record, Reporting};
+use coap_handler_implementations::{
+    HandlerBuilder, ReportingHandlerBuilder, SimpleRendered, new_dispatcher,
+};
 use coap_message_implementations::inmemory_write::GenericMessage;
 
 pub use coap_message_utils::Error as CoAPError;
@@ -13,8 +15,8 @@ pub use coap_message_utils::Error as CoAPError;
 // use ariel_os_debug::log::{debug, info};
 
 extern crate alloc;
-use alloc::vec::Vec;
 use alloc::string::String;
+use alloc::vec::Vec;
 
 // Completely Useless because exported interfaces don't create traits
 // bindgen!({
@@ -24,13 +26,21 @@ use alloc::string::String;
 
 pub trait CoapServerGuest {
     type E: Into<CoAPError>;
-    fn coap_run<T: 'static>(&mut self, store: &mut Store<T>, code:u8, observed_len: u32, message: Vec<u8>) -> Result<(u8, Vec<u8>), Self::E>;
+    fn coap_run<T: 'static>(
+        &mut self,
+        store: &mut Store<T>,
+        code: u8,
+        observed_len: u32,
+        message: Vec<u8>,
+    ) -> Result<(u8, Vec<u8>), Self::E>;
 
     fn initialize_handler<T: 'static>(&mut self, store: &mut Store<T>) -> Result<(), ()>;
 
-    fn report_resources<T: 'static>(&mut self, store: &mut Store<T>) -> Result<Vec<String>, Self::E>;
+    fn report_resources<T: 'static>(
+        &mut self,
+        store: &mut Store<T>,
+    ) -> Result<Vec<String>, Self::E>;
 }
-
 
 pub struct WasmHandler<T: 'static, G: CoapServerGuest> {
     store: Store<T>,
@@ -38,16 +48,23 @@ pub struct WasmHandler<T: 'static, G: CoapServerGuest> {
     paths: Vec<StringRecord>,
 }
 
-impl<T:'static, G: CoapServerGuest> WasmHandler<T, G> {
+impl<T: 'static, G: CoapServerGuest> WasmHandler<T, G> {
     pub fn new(mut store: wasmtime::Store<T>, mut instance: G) -> Self {
         instance.initialize_handler(&mut store).unwrap();
-        let paths = instance.report_resources(&mut store)
+        let paths = instance
+            .report_resources(&mut store)
             .map_err(|e| e.into())
-            .unwrap().into_iter().map(|s| StringRecord(s)).collect();
-        WasmHandler { store, instance, paths }
+            .unwrap()
+            .into_iter()
+            .map(|s| StringRecord(s))
+            .collect();
+        WasmHandler {
+            store,
+            instance,
+            paths,
+        }
     }
 }
-
 
 /// FIXME: use trait function when the WithSortedOptions bound
 mod disable_sort_options_bound {
@@ -55,12 +72,10 @@ mod disable_sort_options_bound {
     use coap_message::{Code, OptionNumber};
 
     pub trait AbleToBeSetFromMessage: coap_message::MinimalWritableMessage {
-
         fn set_from_message2<M>(&mut self, msg: &M) -> Result<(), Self::UnionError>
         where
             M: coap_message::ReadableMessage,
         {
-
             self.set_code(Self::Code::new(msg.code().into())?);
 
             for opt in msg.options() {
@@ -71,13 +86,12 @@ mod disable_sort_options_bound {
         }
     }
 
-    impl<T: coap_message::MinimalWritableMessage> AbleToBeSetFromMessage for T { }
+    impl<T: coap_message::MinimalWritableMessage> AbleToBeSetFromMessage for T {}
 }
 
 use disable_sort_options_bound::AbleToBeSetFromMessage;
 
-
-impl<T:'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
+impl<T: 'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
     // request data is the message replied by the inner handler along it's code
     type RequestData = (u8, Vec<u8>);
 
@@ -85,12 +99,10 @@ impl<T:'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
 
     type BuildResponseError<M: coap_message::MinimalWritableMessage> = M::UnionError;
 
-
     fn extract_request_data<M: coap_message::ReadableMessage>(
-            &mut self,
-            request: &M,
-        ) -> Result<Self::RequestData, Self::ExtractRequestError> {
-
+        &mut self,
+        request: &M,
+    ) -> Result<Self::RequestData, Self::ExtractRequestError> {
         let mut incoming_code: u8 = request.code().into();
         // info!("HOST incoming request with payload {:?}", request.payload());
         // for o in request.options() {
@@ -104,7 +116,10 @@ impl<T:'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
         let incoming_len = reencoded.finish();
 
         // info!("HOST len: {}\n {:?}", incoming_len, defmt::Debug2Format(&buffer));
-        return self.instance.coap_run(&mut self.store, incoming_code, incoming_len as u32, buffer).map_err(|e| e.into());
+        return self
+            .instance
+            .coap_run(&mut self.store, incoming_code, incoming_len as u32, buffer)
+            .map_err(|e| e.into());
     }
 
     fn estimate_length(&mut self, _request: &Self::RequestData) -> usize {
@@ -113,11 +128,13 @@ impl<T:'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
     }
 
     fn build_response<M: coap_message::MutableWritableMessage>(
-            &mut self,
-            response: &mut M,
-            request: Self::RequestData,
-        ) -> Result<(), Self::BuildResponseError<M>> {
-        response.set_from_message2(&coap_message_implementations::inmemory::Message::new(request.0, &request.1))
+        &mut self,
+        response: &mut M,
+        request: Self::RequestData,
+    ) -> Result<(), Self::BuildResponseError<M>> {
+        response.set_from_message2(&coap_message_implementations::inmemory::Message::new(
+            request.0, &request.1,
+        ))
     }
 }
 
@@ -157,13 +174,13 @@ impl<T: 'static, G: CoapServerGuest> Reporting for WasmHandler<T, G> {
         // value from self.0.content_format()
 
         self.paths.iter()
-
-
     }
 }
 
-
-pub fn build_wasm_handler<T:'static, G: CoapServerGuest>(store: wasmtime::Store<T>, instance: G) -> impl Handler + Reporting {
+pub fn build_wasm_handler<T: 'static, G: CoapServerGuest>(
+    store: wasmtime::Store<T>,
+    instance: G,
+) -> impl Handler + Reporting {
     let handler = new_dispatcher()
         .below(&["vm"], WasmHandler::new(store, instance))
         .at(&["hello"], SimpleRendered("Hello from the host"))
