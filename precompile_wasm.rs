@@ -13,10 +13,31 @@ thiserror = { version = "2.0.12" }
 #![feature(trim_prefix_suffix)]
 use std::{fs, io, path::{PathBuf, Path}};
 use std::io::BufRead as _;
-use clap::Parser;
+use clap::{Parser, ValueEnum, builder::PossibleValue};
 use miette::Diagnostic;
 
 use wasmtime::{Config, Engine, OptLevel};
+
+#[derive(Clone, Copy, Debug)]
+enum CLIOptLevel {
+    Three,
+    S,
+    Z,
+}
+
+impl ValueEnum for CLIOptLevel {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[Self::S, Self::Three, Self::Z]
+    }
+
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        match self {
+            Self::Three => Some(PossibleValue::new("3")),
+            Self::S => Some(PossibleValue::new("s")),
+            Self::Z => Some(PossibleValue::new("z")),
+        }
+    }
+}
 
 
 /// Simple CLI that takes a compiled .wasm file and turns into a precompiled-component
@@ -42,6 +63,10 @@ struct Args {
     /// Turn fuel instrumentation on
     #[arg(short, long)]
     fuel: bool,
+
+    /// Override default opt-level
+    #[arg(short='O', long="opt-level", value_enum, default_value_t = CLIOptLevel::S)]
+    opt_level: CLIOptLevel,
 
     /// Path of the output file
     #[arg(short, long)]
@@ -69,7 +94,7 @@ enum Error {
 fn main() -> miette::Result<()> {
     let args = Args::parse();
 
-    let Args { path, config, toolchain, additional, fuel, output, wasm_tools, module } = args;
+    let Args { path, config, toolchain, additional, fuel, output, wasm_tools, module, opt_level } = args;
 
     // Check that the path exists
     assert!(fs::exists(&path).map_err(Error::from)?);
@@ -109,11 +134,12 @@ fn main() -> miette::Result<()> {
                     }
                 }
                 None => {
-                    vec![]
+                    // Use nightly by default since it's needed for --page-size=1
+                    vec!["+nightly"]
                 }
             };
 
-            args.extend(["build", "--release", "--manifest-path", path.as_path().to_str().unwrap()]);
+            args.extend(["rustc", "--release", "--manifest-path", path.as_path().to_str().unwrap()]);
 
             if let Some(config_path) = config {
                     match config_path.extension().map(std::ffi::OsStr::to_str).flatten() {
@@ -127,9 +153,14 @@ fn main() -> miette::Result<()> {
 
 
             args.extend(additional.iter().map(String::as_str));
-
-
             args.extend(["--target-dir", "temp"]);
+            let opt_string = match opt_level {
+                CLIOptLevel::Three => "-Copt-level=3",
+                CLIOptLevel::S => "-Copt-level=s",
+                CLIOptLevel::Z => "-Copt-level=z",
+            };
+
+            args.extend(["--", opt_string]);
 
             std::println!("{:?}", args);
 

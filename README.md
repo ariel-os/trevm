@@ -12,7 +12,8 @@ Your system and toolchain should be set up for Ariel OS. To learn more about the
 
 On top of the requirements for basic Ariel OS usage, to turn rust code into components the `wasm32v1-none` target should be installed for your toolchain using `rustup target add wawm32v1-none` and so should the [`wasm-tools`](https://github.com/bytecodealliance/wasm-tools) CLI utility. Ariel OS works on stable and so does the rust to wasm compilation workflow but we advocate the use of a (recent) nightly compiler for two reasons:
 - Compiling the wasm payloads is a three step process. We provide a rust script that does those steps in sequence and running scripts requires nightly.
-- Wasm binaries have by default a memory page size of 65536 bytes. It is possible to go below but support for this was only added in LLVM 21 which is only used by fairly recent nightly `rustc`. `nightly-09-01` is known to work and is the nightly version that was used when developing this.
+- Wasm binaries have by default a memory page size of 65536 bytes. It is possible to go below but support for this was only added in LLVM 21 which is only used by fairly recent nightly `rustc`. `nightly-2025-09-01` is known to work and is the nightly version that was used when developing this.
+
 
 ### WebAssembly Binding Structure
 
@@ -28,10 +29,9 @@ The `precompile_wasm.rs` script takes in a path to rust manifest (`Cargo.toml`) 
 The source code for the payload used in the examples in the [`payloads`](./payloads/) directory. After modifying the code in for example `payloads/async-bindings/src/lib.rs`, the corresponding example's payload can be changed by using the script in the following way
 ```sh
 #  nightly is required to use -Z script
-cargo +nightly -Z script precompile_wasm.rs --toolchain "+nightly-2025-09-01" --path payloads/async-bindings/Cargo.toml --config payloads/.cargo/config.toml -o examples/async-bindings/payload.cwasm
+cargo +nightly -Z script precompile_wasm.rs --path payloads/async-bindings/Cargo.toml --config payloads/.cargo/config.toml -o examples/async-bindings/payload.cwasm
 ```
-The various parameters used for initial compilation and precompilation have been chosen to optimize the resulting code size and nothing else. See [this document](./Reducing_Size.md) for a more detailled breakdown of the process.
-
+The various parameters used for initial compilation and precompilation have been chosen to optimize the resulting code size and nothing else. See [this document](./Reducing_Size.md) for a more detailled breakdown of the process. In the most recent nightly compilers, the `-Zbuild-std-features` option `panic_immediate_abort` was turned into an unstable panic strategy. The [`payloads/.cargo/config.toml`](./payloads/.cargo/config.toml) config file reflects this change. The old version is still present but commented out.
 ## Examples
 - [Async Bindings for RNG, Timer, Log](./examples/async-bindings): This example shows how Ariel OS can asynchronously run wasm components that yield regularly and that call asynchronous host functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w
 - [UDP Bindings](./examples/udp-bindings): This example showcases how a wasm capsule can receive and send UDP packets by using the approriate functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1
