@@ -3,7 +3,7 @@ This repository showcases small Rust embedded virtual machines, encapsuled and b
 
 ## WebAssembly
 
-Currently, the only type of VM that has been tested with Ariel OS is WebAssembly. Currently, [Wasmtime](https://github.com/bytecodealliance/wasmtime) is the only WebAssembly runtime that is supported.
+Currently, the only type of VM that has been tested with Ariel OS is WebAssembly. Currently, [Wasmtime](https://github.com/bytecodealliance/wasmtime) is the only WebAssembly runtime that is supported. See [this](./Runtime-comparisons.md) for an overview of how other runtimes compare in terms of code size and features.
 Note: Support for this is experimental and the implementation is subject to change.
 
 ### Setup & Requirements
