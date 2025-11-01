@@ -76,10 +76,14 @@ async fn run_wasm() -> wasmtime::Result<()> {
     config.consume_fuel(true);
 
     let engine = Engine::new(&config)?;
-    let component_bytes = include_bytes!("../payload.cwasm");
+    let component_bytes = if cfg!(target_pointer_width = "64") {
+        include_bytes!("../payload.pulley64f.cwasm").as_slice()
+    } else {
+        include_bytes!("../payload.cwasm").as_slice()
+    };
 
     let component =
-        unsafe { Component::deserialize_raw(&engine, component_bytes.as_slice().into()) }?;
+        unsafe { Component::deserialize_raw(&engine, component_bytes.into()) }?;
 
     let host = ArielOSHost::default();
 
