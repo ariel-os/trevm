@@ -60,6 +60,9 @@ struct Args {
     #[arg(long = "compile_options", short='C')]
     additional: Vec<String>,
 
+    #[arg(long, default_value = "pulley32")]
+    target: String,
+
     /// Turn fuel instrumentation on
     #[arg(short, long)]
     fuel: bool,
@@ -94,7 +97,7 @@ enum Error {
 fn main() -> miette::Result<()> {
     let args = Args::parse();
 
-    let Args { path, config, toolchain, additional, fuel, output, wasm_tools, module, opt_level } = args;
+    let Args { path, config, toolchain, additional, fuel, output, wasm_tools, module, opt_level, target } = args;
 
     // Check that the path exists
     assert!(fs::exists(&path).map_err(Error::from)?);
@@ -219,10 +222,10 @@ fn main() -> miette::Result<()> {
         String::from("payload.cwasm").into()
     };
     if !module {
-        precompile("temp.wasm", fuel, out, module)?;
+        precompile("temp.wasm", &target, fuel, out, module)?;
         std::fs::remove_file("temp.wasm").map_err(Error::from)?;
     } else {
-        precompile(&new_path, fuel, out, module)?;
+        precompile(&new_path, &target, fuel, out, module)?;
     }
     if std::fs::exists("temp").map_err(Error::from)? {
         std::fs::remove_dir_all("temp").map_err(Error::from)?;
@@ -231,7 +234,7 @@ fn main() -> miette::Result<()> {
     Ok(())
 }
 
-fn precompile<P: AsRef<Path>>(path: P, fuel: bool, out: PathBuf, module: bool) -> miette::Result<()> {
+fn precompile<P: AsRef<Path>>(path: P, target: &str, fuel: bool, out: PathBuf, module: bool) -> miette::Result<()> {
     std::println!("Precompiling Wasm Module/Component");
     let mut config = Config::new();
 
@@ -242,7 +245,7 @@ fn precompile<P: AsRef<Path>>(path: P, fuel: bool, out: PathBuf, module: bool) -
     config.cranelift_opt_level(OptLevel::Speed);
 
     config.wasm_custom_page_sizes(true);
-    config.target("pulley32").map_err(Error::from)?;
+    config.target(target).map_err(Error::from)?;
 
     // 0 means limiting ourselves to what the module asked
     // This needs to be set at pre-compile time and at runtime in the engine

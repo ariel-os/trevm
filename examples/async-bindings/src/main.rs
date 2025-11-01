@@ -3,7 +3,7 @@
 
 use ariel_os::debug::{
     ExitCode, exit,
-    log::{defmt, info},
+    log::{Debug2Format, info},
 };
 use ariel_os::time::{Duration, Instant, Timer, with_timeout};
 
@@ -33,7 +33,7 @@ async fn main() {
     // Timeout of 9 seconds to showcase that the runtime yields regularly
     let r = with_timeout(Duration::from_secs(9), run_wasm()).await;
     let new_now = Instant::now();
-    info!("{:?}", defmt::Debug2Format(&r));
+    info!("{:?}", Debug2Format(r));
     info!("This took {:?} ms", (new_now - now).as_millis());
     Timer::after_millis(100).await;
     exit(ExitCode::SUCCESS);
@@ -46,7 +46,18 @@ async fn run_wasm() -> wasmtime::Result<()> {
 
     // Options that must conform with the precompilation step
     config.wasm_custom_page_sizes(true);
-    config.target("pulley32").unwrap();
+    config
+        .target(
+            // Even if it is interpreted, pointer width and endianness have to match the host -- but we
+            // currently don't have any "be" systems that we could branch on further. (If things
+            // don't align, the unwrap will complain anyway.)
+            if cfg!(target_pointer_width = "64") {
+                "pulley64"
+            } else {
+                "pulley32"
+            },
+        )
+        .unwrap();
 
     config.table_lazy_init(false);
     config.memory_reservation(0);
@@ -65,10 +76,14 @@ async fn run_wasm() -> wasmtime::Result<()> {
     config.consume_fuel(true);
 
     let engine = Engine::new(&config)?;
-    let component_bytes = include_bytes!("../payload.cwasm");
+    let component_bytes = if cfg!(target_pointer_width = "64") {
+        include_bytes!("../payload.pulley64f.cwasm").as_slice()
+    } else {
+        include_bytes!("../payload.cwasm").as_slice()
+    };
 
     let component =
-        unsafe { Component::deserialize_raw(&engine, component_bytes.as_slice().into()) }?;
+        unsafe { Component::deserialize_raw(&engine, component_bytes.into()) }?;
 
     let host = ArielOSHost::default();
 
@@ -93,7 +108,7 @@ async fn run_wasm() -> wasmtime::Result<()> {
 // Same as https://github.com/bytecodealliance/wasmtime/blob/main/examples/min-platform/embedding/wasmtime-platform.c
 // I have no idea whether this is safe or not.
 // https://github.com/bytecodealliance/wasmtime/blob/aec935f2e746d71934c8a131be15bbbb4392138c/crates/wasmtime/src/runtime/vm/traphandlers.rs#L888
-static mut TLS_PTR: u32 = 0;
+static mut TLS_PTR: usize = 0;
 #[unsafe(no_mangle)]
 extern "C" fn wasmtime_tls_get() -> *mut u8 {
     unsafe { TLS_PTR as *mut u8 }
@@ -101,5 +116,5 @@ extern "C" fn wasmtime_tls_get() -> *mut u8 {
 
 #[unsafe(no_mangle)]
 extern "C" fn wasmtime_tls_set(val: *const u8) {
-    unsafe { TLS_PTR = val as u32 };
+    unsafe { TLS_PTR = val as usize };
 }

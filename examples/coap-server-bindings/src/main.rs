@@ -147,7 +147,7 @@ async fn run_wasm_coap_server() -> wasmtime::Result<()> {
 // Same as https://github.com/bytecodealliance/wasmtime/blob/main/examples/min-platform/embedding/wasmtime-platform.c
 // I have no idea whether this is safe or not.
 // https://github.com/bytecodealliance/wasmtime/blob/aec935f2e746d71934c8a131be15bbbb4392138c/crates/wasmtime/src/runtime/vm/traphandlers.rs#L888
-static mut TLS_PTR: u32 = 0;
+static mut TLS_PTR: usize = 0;
 
 #[allow(unsafe_code)]
 #[unsafe(no_mangle)]
@@ -163,6 +163,6 @@ extern "C" fn wasmtime_tls_get() -> *mut u8 {
 extern "C" fn wasmtime_tls_set(val: *const u8) {
     #[allow(unsafe_code)]
     unsafe {
-        TLS_PTR = val as u32
+        TLS_PTR = val as usize
     };
 }
