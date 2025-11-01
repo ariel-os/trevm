@@ -1,0 +1,9 @@
+package example:example;
+
+world example-updates {
+    import ariel:wasm-bindings/log-api@0.0.1;
+    import ariel:wasm-bindings/time-api@0.0.1;
+
+    // start the component
+    export run: func();
+}
