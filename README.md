@@ -10,9 +10,9 @@ Note: Support for this is experimental and the implementation is subject to chan
 
 Your system and toolchain should be set up for Ariel OS. To learn more about the OS check out the [Ariel OS repo](https://github.com/ariel-os/ariel-os) and follow the guide for [getting started](https://ariel-os.github.io/ariel-os/dev/docs/book/getting-started.html).
 
-On top of the requirements for basic Ariel OS usage, to turn rust code into components the `wasm32v1-none` target should be installed for your toolchain using `rustup target add wawm32v1-none` and so should the [`wasm-tools`](https://github.com/bytecodealliance/wasm-tools) CLI utility. Ariel OS works on stable and so does the rust to wasm compilation workflow but we advocate the use of a (recent) nightly compiler for two reasons:
+On top of the requirements for basic Ariel OS usage, to turn rust code into components the `wasm32v1-none` target should be installed for your toolchain using `rustup <toolchain> target add wawm32v1-none` and so should the [`wasm-tools`](https://github.com/bytecodealliance/wasm-tools) CLI utility. Ariel OS works on stable and so does the rust to wasm compilation workflow but we advocate the use of a (recent) nightly compiler for two reasons:
 - Compiling the wasm payloads is a three step process. We provide a rust script that does those steps in sequence and running scripts requires nightly.
-- Wasm binaries have by default a memory page size of 65536 bytes. It is possible to go below but support for this was only added in LLVM 21 which is only used by fairly recent nightly `rustc`. `nightly-2025-09-01` is known to work and is the nightly version that was used when developing this.
+- Wasm binaries have by default a memory page size of 65536 bytes. It is possible to go below but support for this was only added in LLVM 21 which is only used by fairly recent nightly `rustc`. `nightly-2025-09-01` is known to work and is the nightly version that was used when developing this. Also, if you choose to use the provided script you will also need to download the `rust-src` target for the `nightly` toolchain with `rustup +nightly target add rust-src` to use the `-Z build-std` optimizations that the script uses.
 
 
 ### WebAssembly Binding Structure
