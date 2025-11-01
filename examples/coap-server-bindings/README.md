@@ -20,7 +20,7 @@ Note: OSCORE requires CoAP options to be sorted which is not currently guarantee
 
 ## How to run
 
-Look [here](../README.md#networking) for information about network configuration in Ariel OS.
+Look [here](https://ariel-os.github.io/ariel-os/dev/docs/book/networking.html) for information about network configuration in Ariel OS.
 
 ```sh
 # Example for running on the RP Pico 2 W using wifi
