@@ -30,7 +30,12 @@ The source code for the payload used in the examples in the [`payloads`](./paylo
 ```sh
 #  nightly is required to use -Z script
 cargo +nightly -Z script precompile_wasm.rs --path payloads/async-bindings/Cargo.toml --config payloads/.cargo/config.toml -o examples/async-bindings/payload.cwasm
+cargo +nightly -Z script precompile_wasm.rs --path payloads/async-bindings/Cargo.toml --config payloads/.cargo/config.toml -o examples/async-bindings/payload.pulley64f.cwasm --target pulley64 --fuel
 ```
+
+(The 64bit version is only needed when running with Ariel's `native` target, which is currently only practical with the `async-bindings` example).
+
+
 The various parameters used for initial compilation and precompilation have been chosen to optimize the resulting code size and nothing else. See [this document](./Reducing_Size.md) for a more detailled breakdown of the process. In the most recent nightly compilers, the `-Zbuild-std-features` option `panic_immediate_abort` was turned into an unstable panic strategy. The [`payloads/.cargo/config.toml`](./payloads/.cargo/config.toml) config file reflects this change. The old version is still present but commented out.
 ## Examples
 - [Async Bindings for RNG, Timer, Log](./examples/async-bindings): This example shows how Ariel OS can asynchronously run wasm components that yield regularly and that call asynchronous host functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w
