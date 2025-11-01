@@ -46,7 +46,18 @@ async fn run_wasm() -> wasmtime::Result<()> {
 
     // Options that must conform with the precompilation step
     config.wasm_custom_page_sizes(true);
-    config.target("pulley32").unwrap();
+    config
+        .target(
+            // Even if it is interpreted, pointer width and endianness have to match the host -- but we
+            // currently don't have any "be" systems that we could branch on further. (If things
+            // don't align, the unwrap will complain anyway.)
+            if cfg!(target_pointer_width = "64") {
+                "pulley64"
+            } else {
+                "pulley32"
+            },
+        )
+        .unwrap();
 
     config.table_lazy_init(false);
     config.memory_reservation(0);
