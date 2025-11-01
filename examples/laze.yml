@@ -3,3 +3,5 @@ subdirs:
   - gpio
   - udp-bindings
   - coap-server-bindings
+  - simple-updates
+  - insecure-updates
