@@ -286,8 +286,12 @@ impl<'w> Handler for Control<'w> {
 
                     ExampleCoapServer::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)
                         .map_err(|_| CoAPError::bad_request().with_title("linking failed"))?;
-                    let instance = ExampleCoapServer::instantiate(&mut store, &component, &linker)
-                        .map_err(|_| CoAPError::bad_request().with_title("instantiate failed"))?;
+                    let mut instance = ExampleCoapServer::instantiate(
+                        &mut store, &component, &linker,
+                    )
+                    .map_err(|_| CoAPError::bad_request().with_title("instantiate failed"))?;
+
+                    instance.initialize_handler(&mut store).unwrap();
 
                     s.state = WasmHandlerState::Running { store, instance };
 
