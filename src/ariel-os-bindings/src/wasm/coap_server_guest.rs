@@ -3,9 +3,7 @@ use core::slice::Iter;
 use wasmtime::Store;
 
 use coap_handler::{Attribute, Handler, Record, Reporting};
-use coap_handler_implementations::{
-    HandlerBuilder, SimpleRendered, new_dispatcher,
-};
+use coap_handler_implementations::{HandlerBuilder, SimpleRendered, new_dispatcher};
 use coap_message_implementations::inmemory_write::GenericMessage;
 
 pub use coap_message_utils::Error as CoAPError;
@@ -38,11 +36,37 @@ pub trait CoapServerGuest {
     ) -> Result<Vec<String>, Self::E>;
 }
 
+// FIXME: pub as with all other WasmHandler fields
+pub enum WasmHandlerState<T: 'static, G: CoapServerGuest> {
+    Running { store: Store<T>, instance: G },
+    NotRunning { store_data: T },
+    // This is mainly used so we don't have to resort to take_mut tricks, and can process data from
+    // one state into the next one.
+    //
+    // Ideally this never hits RAM because it's living short enough that the compiler won't even
+    // use it because it sees that it's overwritten in code that can't panic.
+    //
+    // If this is seen in any place outside of where it's expected (i.e., when it's not just
+    // replaced immediately), the library may panic.
+    Taken,
+}
+
+impl<T: 'static, G: CoapServerGuest> WasmHandlerState<T, G> {
+    pub fn stop(&mut self) {
+        *self = match core::mem::replace(self, WasmHandlerState::Taken) {
+            WasmHandlerState::Running { store, _ } => WasmHandlerState::NotRunning {
+                store_data: store.into_data(),
+            },
+            // of take, but then we just leave it that way
+            stopped => stopped,
+        }
+    }
+}
+
 pub struct WasmHandler<T: 'static, G: CoapServerGuest> {
     // All fields are pub mainly while we figure out which pieces of any new-program logic best go
     // where.
-    pub store: Store<T>,
-    pub instance: Option<G>,
+    pub state: WasmHandlerState<T, G>,
     pub paths: Vec<StringRecord>,
     /// Backing data of the instance.
     ///
@@ -78,8 +102,7 @@ impl<T: 'static, G: CoapServerGuest> WasmHandler<T, G> {
             .map(|s| StringRecord(s))
             .collect();
         WasmHandler {
-            store,
-            instance: Some(instance),
+            state: WasmHandlerState::Running { store, instance },
             program: Vec::new(),
             paths,
         }
@@ -137,24 +160,26 @@ impl<'w, T: 'static, G: CoapServerGuest> Handler for WasmHandlerWrapped<'w, T, G
         // allow the WasmHandler to also perform tasks outside CoAP.
         let s = &mut *self.0.borrow_mut();
 
-        let mut incoming_code: u8 = request.code().into();
-        // info!("HOST incoming request with payload {:?}", request.payload());
-        // for o in request.options() {
-        //     info!("HOST Option {} {:?}", o.number(), o.value());
-        // };
+        match &mut s.state {
+            WasmHandlerState::Running { store, instance } => {
+                let mut incoming_code: u8 = request.code().into();
+                // info!("HOST incoming request with payload {:?}", request.payload());
+                // for o in request.options() {
+                //     info!("HOST Option {} {:?}", o.number(), o.value());
+                // };
 
-        let mut buffer = core::iter::repeat_n(0, 1280).collect::<Vec<u8>>();
+                let mut buffer = core::iter::repeat_n(0, 1280).collect::<Vec<u8>>();
 
-        let mut reencoded = GenericMessage::new(&mut incoming_code, &mut buffer);
-        reencoded.set_from_message2(request).unwrap();
-        let incoming_len = reencoded.finish();
+                let mut reencoded = GenericMessage::new(&mut incoming_code, &mut buffer);
+                reencoded.set_from_message2(request).unwrap();
+                let incoming_len = reencoded.finish();
 
-        return s
-            .instance
-            .as_mut()
-            .ok_or_else(|| CoAPError::service_unavailable())?
-            .coap_run(&mut s.store, incoming_code, incoming_len as u32, buffer)
-            .map_err(|e| e.into());
+                instance
+                    .coap_run(store, incoming_code, incoming_len as u32, buffer)
+                    .map_err(|e| e.into())
+            }
+            _other => Err(CoAPError::service_unavailable()),
+        }
     }
 
     fn estimate_length(&mut self, _request: &Self::RequestData) -> usize {

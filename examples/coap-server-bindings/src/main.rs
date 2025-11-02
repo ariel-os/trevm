@@ -14,7 +14,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 use ariel_os_bindings::wasm::coap_server_guest::{
-    CoAPError, CoapServerGuest, WasmHandler, WasmHandlerWrapped,
+    CoAPError, CoapServerGuest, WasmHandler, WasmHandlerState, WasmHandlerWrapped,
 };
 
 use ariel_os_bindings::wasm::ArielOSHost;
@@ -192,7 +192,8 @@ impl<'w> Handler for Control<'w> {
                 // FIXME: Handle If-Match
                 request.options().ignore_elective_others()?;
 
-                s.instance.take();
+                s.state.stop();
+
                 Ok((None, coap_numbers::code::DELETED))
             }
             coap_numbers::code::PUT => {
@@ -227,7 +228,7 @@ impl<'w> Handler for Control<'w> {
                 let offset = (block1 >> 4) * blocksize;
 
                 if offset == 0 {
-                    s.instance.take();
+                    s.state.stop();
                     s.program.truncate(0);
                 }
 
@@ -235,7 +236,9 @@ impl<'w> Handler for Control<'w> {
                 // the calculations truncate / overflow, lest someone might send a wrappingly large
                 // file that only after wrapping is malicious, but as long as all trust is in a
                 // single authenticated peer, this does not matter yet.
-                if s.instance.is_some() || s.program.len() != offset as usize {
+                if matches!(&s.state, WasmHandlerState::Running { .. })
+                    || s.program.len() != offset as usize
+                {
                     // FIXME: CoAPError should have such a constructor too (but there's no harm in
                     // returning an error through the Ok path).
                     return Ok((None, coap_numbers::code::REQUEST_ENTITY_INCOMPLETE));
@@ -257,6 +260,18 @@ impl<'w> Handler for Control<'w> {
                         s.program.len()
                     );
 
+                    let WasmHandlerState::NotRunning { store_data } =
+                        core::mem::replace(&mut s.state, WasmHandlerState::Taken)
+                    else {
+                        unreachable!("Was checked before");
+                    };
+
+                    // FIXME: We *do* allow the state to get lost here. This just needs better
+                    // error handling to do, as we can get the store.into_data() out of every
+                    // possible failure case.
+
+                    let mut store = Store::new(self.engine, store_data);
+
                     // SAFETY: We trust the user to provide us with checked data, and the contract
                     // around self.program describes that it won't be dropped as long as the
                     // instance is live.
@@ -271,12 +286,10 @@ impl<'w> Handler for Control<'w> {
 
                     ExampleCoapServer::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)
                         .map_err(|_| CoAPError::bad_request().with_title("linking failed"))?;
-                    let instance =
-                        ExampleCoapServer::instantiate(&mut s.store, &component, &linker).map_err(
-                            |_| CoAPError::bad_request().with_title("instantiate failed"),
-                        )?;
+                    let instance = ExampleCoapServer::instantiate(&mut store, &component, &linker)
+                        .map_err(|_| CoAPError::bad_request().with_title("instantiate failed"))?;
 
-                    s.instance = Some(instance);
+                    s.state = WasmHandlerState::Running { store, instance };
 
                     // FIXME if there was no Block1 option at all, can we still send some?
                     Ok((Some(block1), coap_numbers::code::CHANGED))
