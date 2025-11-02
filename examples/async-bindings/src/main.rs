@@ -33,7 +33,7 @@ async fn main() {
     // Timeout of 9 seconds to showcase that the runtime yields regularly
     let r = with_timeout(Duration::from_secs(9), run_wasm()).await;
     let new_now = Instant::now();
-    info!("{:?}", Debug2Format(r));
+    info!("{:?}", Debug2Format(&r));
     info!("This took {:?} ms", (new_now - now).as_millis());
     Timer::after_millis(100).await;
     exit(ExitCode::SUCCESS);
