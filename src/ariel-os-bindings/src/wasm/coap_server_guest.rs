@@ -44,6 +44,16 @@ pub struct WasmHandler<T: 'static, G: CoapServerGuest> {
     paths: Vec<StringRecord>,
 }
 
+pub struct WasmHandlerWrapped<'w, T: 'static, G: CoapServerGuest>(
+    pub &'w core::cell::RefCell<WasmHandler<T, G>>,
+);
+
+impl<'w, T: 'static, G: CoapServerGuest> Clone for WasmHandlerWrapped<'w, T, G> {
+    fn clone(&self) -> Self {
+        Self(self.0)
+    }
+}
+
 impl<T: 'static, G: CoapServerGuest> WasmHandler<T, G> {
     pub fn new(mut store: wasmtime::Store<T>, mut instance: G) -> Self {
         instance.initialize_handler(&mut store).unwrap();
@@ -59,6 +69,17 @@ impl<T: 'static, G: CoapServerGuest> WasmHandler<T, G> {
             instance,
             paths,
         }
+    }
+}
+
+impl<'w, T: 'static, G: CoapServerGuest> WasmHandlerWrapped<'w, T, G> {
+    pub fn to_handler(self) -> impl Handler + Reporting {
+        let handler = new_dispatcher()
+            .below(&["vm"], self.clone())
+            .at(&["hello"], SimpleRendered("Hello from the host"))
+            .with_wkc();
+
+        return handler;
     }
 }
 
@@ -87,7 +108,7 @@ mod disable_sort_options_bound {
 
 use disable_sort_options_bound::AbleToBeSetFromMessage;
 
-impl<T: 'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
+impl<'w, T: 'static, G: CoapServerGuest> Handler for WasmHandlerWrapped<'w, T, G> {
     // request data is the message replied by the inner handler along it's code
     type RequestData = (u8, Vec<u8>);
 
@@ -99,6 +120,10 @@ impl<T: 'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
         &mut self,
         request: &M,
     ) -> Result<Self::RequestData, Self::ExtractRequestError> {
+        // The handler is exclusive, we don't have to worry about simultaneous access until we
+        // allow the WasmHandler to also perform tasks outside CoAP.
+        let s = &mut *self.0.borrow_mut();
+
         let mut incoming_code: u8 = request.code().into();
         // info!("HOST incoming request with payload {:?}", request.payload());
         // for o in request.options() {
@@ -111,9 +136,9 @@ impl<T: 'static, G: CoapServerGuest> Handler for WasmHandler<T, G> {
         reencoded.set_from_message2(request).unwrap();
         let incoming_len = reencoded.finish();
 
-        return self
+        return s
             .instance
-            .coap_run(&mut self.store, incoming_code, incoming_len as u32, buffer)
+            .coap_run(&mut s.store, incoming_code, incoming_len as u32, buffer)
             .map_err(|e| e.into());
     }
 
@@ -153,7 +178,7 @@ impl<'a> Record for &'a StringRecord {
     }
 }
 
-impl<T: 'static, G: CoapServerGuest> Reporting for WasmHandler<T, G> {
+impl<'w, T: 'static, G: CoapServerGuest> Reporting for WasmHandlerWrapped<'w, T, G> {
     type Record<'a>
         = &'a StringRecord
     where
@@ -168,18 +193,10 @@ impl<T: 'static, G: CoapServerGuest> Reporting for WasmHandler<T, G> {
         // Using a ConstantSliceRecord instead would be tempting, but that'd need a const return
         // value from self.0.content_format()
 
-        self.paths.iter()
+        let s = self.0.borrow();
+
+        // FIXME: Broken temporarily during work on RefCell wrapping
+        /*s.paths*/
+        [].iter()
     }
-}
-
-pub fn build_wasm_handler<T: 'static, G: CoapServerGuest>(
-    store: wasmtime::Store<T>,
-    instance: G,
-) -> impl Handler + Reporting {
-    let handler = new_dispatcher()
-        .below(&["vm"], WasmHandler::new(store, instance))
-        .at(&["hello"], SimpleRendered("Hello from the host"))
-        .with_wkc();
-
-    return handler;
 }

@@ -13,7 +13,9 @@ extern crate alloc;
 use alloc::string::String;
 use alloc::vec::Vec;
 
-use ariel_os_bindings::wasm::coap_server_guest::{CoAPError, CoapServerGuest, build_wasm_handler};
+use ariel_os_bindings::wasm::coap_server_guest::{
+    CoAPError, CoapServerGuest, WasmHandler, WasmHandlerWrapped,
+};
 
 use ariel_os_bindings::wasm::ArielOSHost;
 
@@ -139,7 +141,10 @@ async fn run_wasm_coap_server() -> wasmtime::Result<()> {
     ExampleCoapServer::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)?;
     let instance = ExampleCoapServer::instantiate(&mut store, &component, &linker)?;
 
-    let handler = build_wasm_handler(store, instance);
+    // FIXME ergonomics
+    let wasmhandler = WasmHandler::new(store, instance);
+    let wrapped = WasmHandlerWrapped(&core::cell::RefCell::new(wasmhandler));
+    let handler = wrapped.to_handler();
     info!("Starting Handler");
     coap_run(handler).await;
 }
