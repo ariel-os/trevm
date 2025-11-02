@@ -4,7 +4,7 @@ use wasmtime::Store;
 
 use coap_handler::{Attribute, Handler, Record, Reporting};
 use coap_handler_implementations::{
-    HandlerBuilder, ReportingHandlerBuilder, SimpleRendered, new_dispatcher,
+    HandlerBuilder, SimpleRendered, new_dispatcher,
 };
 use coap_message_implementations::inmemory_write::GenericMessage;
 
@@ -39,9 +39,22 @@ pub trait CoapServerGuest {
 }
 
 pub struct WasmHandler<T: 'static, G: CoapServerGuest> {
-    store: Store<T>,
-    instance: G,
-    paths: Vec<StringRecord>,
+    // All fields are pub mainly while we figure out which pieces of any new-program logic best go
+    // where.
+    pub store: Store<T>,
+    pub instance: Option<G>,
+    pub paths: Vec<StringRecord>,
+    /// Backing data of the instance.
+    ///
+    /// This is empty initially when the program is loaded from flash.
+    ///
+    /// # Safety invariants
+    ///
+    /// This needs to stay unchanged as long as an instance is `Some`; this is a guarantee used to
+    /// satisfy the `Component::deserialize_raw` requirements.
+    // FIXME This should be `unsafe pub`, but that's not stable, and we should "just" re-evaluate
+    // what our boundaries are
+    pub program: Vec<u8>,
 }
 
 pub struct WasmHandlerWrapped<'w, T: 'static, G: CoapServerGuest>(
@@ -66,7 +79,8 @@ impl<T: 'static, G: CoapServerGuest> WasmHandler<T, G> {
             .collect();
         WasmHandler {
             store,
-            instance,
+            instance: Some(instance),
+            program: Vec::new(),
             paths,
         }
     }
@@ -76,8 +90,7 @@ impl<'w, T: 'static, G: CoapServerGuest> WasmHandlerWrapped<'w, T, G> {
     pub fn to_handler(self) -> impl Handler + Reporting {
         let handler = new_dispatcher()
             .below(&["vm"], self.clone())
-            .at(&["hello"], SimpleRendered("Hello from the host"))
-            .with_wkc();
+            .at(&["hello"], SimpleRendered("Hello from the host"));
 
         return handler;
     }
@@ -138,6 +151,8 @@ impl<'w, T: 'static, G: CoapServerGuest> Handler for WasmHandlerWrapped<'w, T, G
 
         return s
             .instance
+            .as_mut()
+            .ok_or_else(|| CoAPError::service_unavailable())?
             .coap_run(&mut s.store, incoming_code, incoming_len as u32, buffer)
             .map_err(|e| e.into());
     }
