@@ -82,8 +82,7 @@ async fn run_wasm() -> wasmtime::Result<()> {
         include_bytes!("../payload.cwasm").as_slice()
     };
 
-    let component =
-        unsafe { Component::deserialize_raw(&engine, component_bytes.into()) }?;
+    let component = unsafe { Component::deserialize_raw(&engine, component_bytes.into()) }?;
 
     let host = ArielOSHost::default();
 
