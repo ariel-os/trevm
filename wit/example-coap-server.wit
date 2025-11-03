@@ -4,5 +4,7 @@ world example-coap-server {
     import ariel:wasm-bindings/log-api@0.0.1;
     export ariel:wasm-bindings/coap-server-guest@0.0.1;
 
+    import uppercase: func(input: string) -> string;
+
 //    use ariel:wasm-bindings/coap-server-guest@0.0.1.{coap-err};
 }
