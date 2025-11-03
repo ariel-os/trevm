@@ -14,8 +14,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 use ariel_os_bindings::wasm::coap_server_guest::{
-    CanInstantiate, CoAPError, CoapServerGuest, WasmHandler, WasmHandlerState,
-    WasmHandlerWrapped,
+    CanInstantiate, CoAPError, CoapServerGuest, WasmHandler, WasmHandlerWrapped,
 };
 
 use ariel_os_bindings::wasm::ArielOSHost;
@@ -198,8 +197,7 @@ impl<'w> Handler for Control<'w> {
                 // FIXME: Handle If-Match
                 request.options().ignore_elective_others()?;
 
-                s.state.stop();
-                s.paths.clear();
+                s.stop();
 
                 Ok((None, coap_numbers::code::DELETED))
             }
@@ -235,29 +233,30 @@ impl<'w> Handler for Control<'w> {
                 let offset = (block1 >> 4) * blocksize;
 
                 if offset == 0 {
-                    s.state.stop();
-                    s.paths.clear();
-                    s.program.truncate(0);
+                    s.stop();
+                    s.mutate_program().unwrap().truncate(0);
                 }
+
+                let Ok(program) = s.mutate_program() else {
+                    // FIXME: CoAPError should have such a constructor too (but there's no harm in
+                    // returning an error through the Ok path).
+                    return Ok((None, coap_numbers::code::REQUEST_ENTITY_INCOMPLETE));
+                };
 
                 // If we had any of the content signed, we'd have to take care not to let any of
                 // the calculations truncate / overflow, lest someone might send a wrappingly large
                 // file that only after wrapping is malicious, but as long as all trust is in a
                 // single authenticated peer, this does not matter yet.
-                if matches!(&s.state, WasmHandlerState::Running { .. })
-                    || s.program.len() != offset as usize
-                {
-                    // FIXME: CoAPError should have such a constructor too (but there's no harm in
-                    // returning an error through the Ok path).
+                if program.len() != offset as usize {
                     return Ok((None, coap_numbers::code::REQUEST_ENTITY_INCOMPLETE));
                 }
 
                 let payload = request.payload();
-                s.program
+                program
                     .try_reserve(payload.len())
                     // FIXME: Request Entity Too Big?
                     .map_err(|_| CoAPError::internal_server_error())?;
-                s.program.extend_from_slice(payload);
+                program.extend_from_slice(payload);
 
                 if block1 & 0x8 == 0x8 {
                     // More to say you have?
@@ -265,7 +264,7 @@ impl<'w> Handler for Control<'w> {
                 } else {
                     info!(
                         "Re-instantiating based on program of {} bytes.",
-                        s.program.len()
+                        program.len()
                     );
 
                     // SAFETY: We trust the user to provide us with checked data

@@ -88,8 +88,6 @@ pub struct WasmHandler<T: 'static, G: CoapServerGuest> {
     pub paths: Vec<StringRecord>,
     /// Backing data of the instance.
     ///
-    /// This is empty initially when the program is loaded from flash.
-    ///
     /// # Safety invariants
     ///
     /// This needs to stay unchanged as long as an instance is `Some`; this is a guarantee used to
@@ -197,7 +195,33 @@ impl<T: 'static, G: CoapServerGuest> WasmHandler<T, G> {
 
         Ok(())
     }
+
+    pub fn stop(&mut self) {
+        self.state.stop();
+        self.paths.clear();
+    }
+
+    fn require_stopped(&self) -> Result<(), StopFirst> {
+        match self.state {
+            WasmHandlerState::Running { .. } => Err(StopFirst),
+            _ => Ok(()),
+        }
+    }
+
+    /// Provides mutable access to the dynamic program.
+    ///
+    /// Beware that the input to this function is what the later `unsafe` guarantee of
+    /// [Self::start_from_dynamic] is about.
+    pub fn mutate_program(&mut self) -> Result<&mut Vec<u8>, StopFirst> {
+        self.require_stopped()?;
+
+        Ok(&mut self.program)
+    }
 }
+
+/// Error indicating that an operation can't be performed while a program has not been stopped.
+#[derive(Debug)]
+pub struct StopFirst;
 
 impl<'w, T: 'static, G: CoapServerGuest> WasmHandlerWrapped<'w, T, G> {
     pub fn to_handler(self) -> impl Handler + Reporting {
