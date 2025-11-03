@@ -14,7 +14,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 use ariel_os_bindings::wasm::coap_server_guest::{
-    CoAPError, CoapServerGuest, WasmHandler, WasmHandlerState, WasmHandlerWrapped,
+    CoAPError, CoapServerGuest, StringRecord, WasmHandler, WasmHandlerState, WasmHandlerWrapped,
 };
 
 use ariel_os_bindings::wasm::ArielOSHost;
@@ -193,6 +193,7 @@ impl<'w> Handler for Control<'w> {
                 request.options().ignore_elective_others()?;
 
                 s.state.stop();
+                s.paths.clear();
 
                 Ok((None, coap_numbers::code::DELETED))
             }
@@ -229,6 +230,7 @@ impl<'w> Handler for Control<'w> {
 
                 if offset == 0 {
                     s.state.stop();
+                    s.paths.clear();
                     s.program.truncate(0);
                 }
 
@@ -292,6 +294,13 @@ impl<'w> Handler for Control<'w> {
                     .map_err(|_| CoAPError::bad_request().with_title("instantiate failed"))?;
 
                     instance.initialize_handler(&mut store).unwrap();
+                    // FIXME deduplicate with setup in WasmHandler::new
+                    s.paths = instance
+                        .report_resources(&mut store)
+                        .unwrap()
+                        .into_iter()
+                        .map(|s| StringRecord(s))
+                        .collect();
 
                     s.state = WasmHandlerState::Running { store, instance };
 

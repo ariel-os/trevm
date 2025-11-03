@@ -1,5 +1,3 @@
-use core::slice::Iter;
-
 use wasmtime::Store;
 
 use coap_handler::{Attribute, Handler, Record, Reporting};
@@ -198,11 +196,14 @@ impl<'w, T: 'static, G: CoapServerGuest> Handler for WasmHandlerWrapped<'w, T, G
     }
 }
 
-pub struct StringRecord(String);
+// FIXME this is quite alloc'y
 
-impl<'a> Record for &'a StringRecord {
-    type PathElement = &'a String;
-    type PathElements = core::iter::Once<&'a String>;
+#[derive(Clone)]
+pub struct StringRecord(pub String);
+
+impl Record for StringRecord {
+    type PathElement = String;
+    type PathElements = core::iter::Once<String>;
     type Attributes = core::iter::Empty<Attribute>;
 
     fn attributes(&self) -> Self::Attributes {
@@ -214,18 +215,18 @@ impl<'a> Record for &'a StringRecord {
     }
 
     fn path(&self) -> Self::PathElements {
-        core::iter::once(&self.0)
+        core::iter::once(self.0.clone())
     }
 }
 
 impl<'w, T: 'static, G: CoapServerGuest> Reporting for WasmHandlerWrapped<'w, T, G> {
     type Record<'a>
-        = &'a StringRecord
+        = StringRecord
     where
         Self: 'a;
 
     type Reporter<'a>
-        = Iter<'a, StringRecord>
+        = alloc::vec::IntoIter<StringRecord>
     where
         Self: 'a;
 
@@ -233,10 +234,6 @@ impl<'w, T: 'static, G: CoapServerGuest> Reporting for WasmHandlerWrapped<'w, T,
         // Using a ConstantSliceRecord instead would be tempting, but that'd need a const return
         // value from self.0.content_format()
 
-        let s = self.0.borrow();
-
-        // FIXME: Broken temporarily during work on RefCell wrapping
-        /*s.paths*/
-        [].iter()
+        self.0.borrow().paths.clone().into_iter()
     }
 }
