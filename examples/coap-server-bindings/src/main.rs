@@ -14,7 +14,7 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 use ariel_os_bindings::wasm::coap_server_guest::{
-    CanInstantiate, CoAPError, CoapServerGuest, StringRecord, WasmHandler, WasmHandlerState,
+    CanInstantiate, CoAPError, CoapServerGuest, WasmHandler, WasmHandlerState,
     WasmHandlerWrapped,
 };
 
@@ -268,47 +268,12 @@ impl<'w> Handler for Control<'w> {
                         s.program.len()
                     );
 
-                    let WasmHandlerState::NotRunning { store_data } =
-                        core::mem::replace(&mut s.state, WasmHandlerState::Taken)
-                    else {
-                        unreachable!("Was checked before");
-                    };
-
-                    // FIXME: We *do* allow the state to get lost here. This just needs better
-                    // error handling to do, as we can get the store.into_data() out of every
-                    // possible failure case.
-
-                    let mut store = Store::new(self.engine, store_data);
-
-                    // SAFETY: We trust the user to provide us with checked data, and the contract
-                    // around self.program describes that it won't be dropped as long as the
-                    // instance is live.
-                    let component = unsafe {
-                        Component::deserialize_raw(self.engine, s.program.as_slice().into())
-                            .map_err(|_| {
-                                CoAPError::bad_request().with_title("deserialization failed")
-                            })?
-                    };
-
-                    let mut linker = Linker::new(&self.engine);
-
-                    ExampleCoapServer::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)
-                        .map_err(|_| CoAPError::bad_request().with_title("linking failed"))?;
-                    let mut instance = ExampleCoapServer::instantiate(
-                        &mut store, &component, &linker,
-                    )
-                    .map_err(|_| CoAPError::bad_request().with_title("instantiate failed"))?;
-
-                    instance.initialize_handler(&mut store).unwrap();
-                    // FIXME deduplicate with setup in WasmHandler::new
-                    s.paths = instance
-                        .report_resources(&mut store)
-                        .unwrap()
-                        .into_iter()
-                        .map(|s| StringRecord(s))
-                        .collect();
-
-                    s.state = WasmHandlerState::Running { store, instance };
+                    // SAFETY: We trust the user to provide us with checked data
+                    unsafe {
+                        s.start_from_dynamic(self.engine)
+                            // FIXME: relay more details?
+                            .map_err(|_| CoAPError::bad_request())
+                    }?;
 
                     // FIXME if there was no Block1 option at all, can we still send some?
                     Ok((Some(block1), coap_numbers::code::CHANGED))

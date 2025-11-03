@@ -139,6 +139,23 @@ impl<T: 'static, G: CoapServerGuest> WasmHandler<T, G> {
         unsafe { self.start_raw(wasm.into(), engine) }
     }
 
+    /// Start running a CoAP server from data that has been prepared in `.program`.
+    ///
+    /// # Safety
+    ///
+    /// The requirements of [`wasmtime::Component::deserialize`] apply. (Paraphrasing: This needs
+    /// to be wasmtime prepared code; arbitrary data may execute arbitrary code).
+    pub unsafe fn start_from_dynamic(&mut self, engine: &wasmtime::Engine) -> wasmtime::Result<()>
+    where
+        G: CanInstantiate<T>,
+    {
+        // SAFETY:
+        // * The requirement on code content is forwarded.
+        // * The requirement on code lifetime is satisfied by the type's unsafe invariant that
+        //   program is not mutated while running.
+        unsafe { self.start_raw(self.program.as_slice().into(), engine) }
+    }
+
     /// Starts running a CoAP server from a provided instance.
     ///
     /// This expects `self.state` to be currently taken.
