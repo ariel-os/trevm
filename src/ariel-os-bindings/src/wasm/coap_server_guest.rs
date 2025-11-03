@@ -54,8 +54,7 @@ pub trait CanInstantiate<T>: Sized {
     ) -> wasmtime::Result<Self>;
 }
 
-// FIXME: pub as with all other WasmHandler fields
-pub enum WasmHandlerState<T: 'static, G: CoapServerGuest> {
+enum WasmHandlerState<T: 'static, G: CoapServerGuest> {
     Running { store: Store<T>, instance: G },
     NotRunning { store_data: T },
     // This is mainly used so we don't have to resort to take_mut tricks, and can process data from
@@ -82,19 +81,15 @@ impl<T: 'static, G: CoapServerGuest> WasmHandlerState<T, G> {
 }
 
 pub struct WasmHandler<T: 'static, G: CoapServerGuest> {
-    // All fields are pub mainly while we figure out which pieces of any new-program logic best go
-    // where.
-    pub state: WasmHandlerState<T, G>,
-    pub paths: Vec<StringRecord>,
+    state: WasmHandlerState<T, G>,
+    paths: Vec<StringRecord>,
     /// Backing data of the instance.
     ///
     /// # Safety invariants
     ///
     /// This needs to stay unchanged as long as an instance is `Some`; this is a guarantee used to
     /// satisfy the `Component::deserialize_raw` requirements.
-    // FIXME This should be `unsafe pub`, but that's not stable, and we should "just" re-evaluate
-    // what our boundaries are
-    pub program: Vec<u8>,
+    program: Vec<u8>,
 }
 
 pub struct WasmHandlerWrapped<'w, T: 'static, G: CoapServerGuest>(
