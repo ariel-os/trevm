@@ -1,4 +1,7 @@
-use wasmtime::Store;
+use wasmtime::{
+    Store,
+    component::{Component, Linker},
+};
 
 use coap_handler::{Attribute, Handler, Record, Reporting};
 use coap_handler_implementations::{HandlerBuilder, SimpleRendered, new_dispatcher};
@@ -34,6 +37,23 @@ pub trait CoapServerGuest {
     ) -> Result<Vec<String>, Self::E>;
 }
 
+/// Glue layer that allows a generic backend to operate on any concrete bindgen type.
+///
+/// Open questions:
+/// * Could this be part of (or interdependent with) CoapServerGuest?
+/// * Do we need it to be a trait in the first place? (Maybe all sensible applications that can use
+///   this module have to use the singel bindgen output anyway, and thus all the bindgen could move
+///   into this module.)
+pub trait CanInstantiate<T>: Sized {
+    /// Runs Self::add_to_linker and Self::instantiate (which are bindgen generated methods without
+    /// a type)
+    fn instantiate(
+        linker: &mut Linker<T>,
+        store: &mut Store<T>,
+        component: Component,
+    ) -> wasmtime::Result<Self>;
+}
+
 // FIXME: pub as with all other WasmHandler fields
 pub enum WasmHandlerState<T: 'static, G: CoapServerGuest> {
     Running { store: Store<T>, instance: G },
@@ -52,7 +72,7 @@ pub enum WasmHandlerState<T: 'static, G: CoapServerGuest> {
 impl<T: 'static, G: CoapServerGuest> WasmHandlerState<T, G> {
     pub fn stop(&mut self) {
         *self = match core::mem::replace(self, WasmHandlerState::Taken) {
-            WasmHandlerState::Running { store, _ } => WasmHandlerState::NotRunning {
+            WasmHandlerState::Running { store, .. } => WasmHandlerState::NotRunning {
                 store_data: store.into_data(),
             },
             // of take, but then we just leave it that way
@@ -90,20 +110,75 @@ impl<'w, T: 'static, G: CoapServerGuest> Clone for WasmHandlerWrapped<'w, T, G> 
 }
 
 impl<T: 'static, G: CoapServerGuest> WasmHandler<T, G> {
-    pub fn new(mut store: wasmtime::Store<T>, mut instance: G) -> Self {
+    pub fn new(store_data: T) -> Self {
+        WasmHandler {
+            state: WasmHandlerState::NotRunning { store_data },
+            program: Vec::new(),
+            paths: Vec::new(),
+        }
+    }
+
+    /// Start running a CoAP server from 'static code (which is typically shipped with the firmware
+    /// and resides in flash)
+    ///
+    /// # Safety
+    ///
+    /// The requirements of [`wasmtime::Component::deserialize`] apply. (Paraphrasing: This needs
+    /// to be wasmtime prepared code; arbitrary data may execute arbitrary code).
+    pub unsafe fn start_from_static(
+        &mut self,
+        wasm: &'static [u8],
+        engine: &wasmtime::Engine,
+    ) -> wasmtime::Result<()>
+    where
+        G: CanInstantiate<T>,
+    {
+        // SAFETY:
+        // * The requirement on code content is forwarded.
+        // * The requirement on code lifetime is satisfied by the 'static.
+        unsafe { self.start_raw(wasm.into(), engine) }
+    }
+
+    /// Starts running a CoAP server from a provided instance.
+    ///
+    /// This expects `self.state` to be currently taken.
+    ///
+    /// # Safety
+    ///
+    /// The requirements of [`wasmtime::Component::deserialize_raw`] apply. (Paraphrasing: This
+    /// needs to be wasmtime prepared code; arbitrary data may execute arbitrary code, and the
+    /// program code must outlive any use of the returned instance).
+    pub unsafe fn start_raw(
+        &mut self,
+        wasm: core::ptr::NonNull<[u8]>,
+        engine: &wasmtime::Engine,
+    ) -> wasmtime::Result<()>
+    where
+        G: CanInstantiate<T>,
+    {
+        let WasmHandlerState::NotRunning { store_data } =
+            core::mem::replace(&mut self.state, WasmHandlerState::Taken)
+        else {
+            // FIXME: Just provide a .stop() here and run that before.
+            panic!("Starting from non-stopped state.");
+        };
+
+        let mut store = Store::new(&engine, store_data);
+        let component = unsafe { Component::deserialize_raw(&engine, wasm)? };
+        let mut linker = Linker::<T>::new(&engine);
+        let mut instance = G::instantiate(&mut linker, &mut store, component)?;
+
         instance.initialize_handler(&mut store).unwrap();
-        let paths = instance
+        self.paths = instance
             .report_resources(&mut store)
             .map_err(|e| e.into())
             .unwrap()
             .into_iter()
             .map(|s| StringRecord(s))
             .collect();
-        WasmHandler {
-            state: WasmHandlerState::Running { store, instance },
-            program: Vec::new(),
-            paths,
-        }
+        self.state = WasmHandlerState::Running { store, instance };
+
+        Ok(())
     }
 }
 

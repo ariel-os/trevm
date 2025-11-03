@@ -14,7 +14,8 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 use ariel_os_bindings::wasm::coap_server_guest::{
-    CoAPError, CoapServerGuest, StringRecord, WasmHandler, WasmHandlerState, WasmHandlerWrapped,
+    CanInstantiate, CoAPError, CoapServerGuest, StringRecord, WasmHandler, WasmHandlerState,
+    WasmHandlerWrapped,
 };
 
 use ariel_os_bindings::wasm::ArielOSHost;
@@ -105,6 +106,17 @@ impl CoapServerGuest for ExampleCoapServer {
     }
 }
 
+impl<T: ariel_os_bindings::wasm::log::Host> CanInstantiate<T> for ExampleCoapServer {
+    fn instantiate(
+        mut linker: &mut Linker<T>,
+        mut store: &mut Store<T>,
+        component: Component,
+    ) -> wasmtime::Result<Self> {
+        ExampleCoapServer::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)?;
+        ExampleCoapServer::instantiate(&mut store, &component, &linker)
+    }
+}
+
 #[ariel_os::task(autostart)]
 async fn main() {
     let res = run_wasm_coap_server().await;
@@ -133,19 +145,13 @@ async fn run_wasm_coap_server() -> wasmtime::Result<()> {
 
     let host = ArielOSHost::default();
 
-    let mut store = Store::new(&engine, host);
+    let wasm = include_bytes!("../payload.cwasm").as_slice();
 
-    let wasm = include_bytes!("../payload.cwasm");
-
-    let component = unsafe { Component::deserialize_raw(&engine, wasm.as_slice().into())? };
-
-    let mut linker = Linker::new(&engine);
-
-    ExampleCoapServer::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)?;
-    let instance = ExampleCoapServer::instantiate(&mut store, &component, &linker)?;
-
-    // FIXME ergonomics
-    let wasmhandler = WasmHandler::new(store, instance);
+    let mut wasmhandler = WasmHandler::new(host);
+    // SAFETY: Data in that file was produced by ./precompile_wasm.rs
+    unsafe {
+        wasmhandler.start_from_static(wasm, &engine)?;
+    }
     let wrapped = WasmHandlerWrapped(&core::cell::RefCell::new(wasmhandler));
     let handler = wrapped
         .clone()
