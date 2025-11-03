@@ -105,10 +105,10 @@ impl CoapServerGuest for ExampleCoapServer {
     }
 }
 
-impl<T: ariel_os_bindings::wasm::log::Host> CanInstantiate<T> for ExampleCoapServer {
+impl CanInstantiate<ArielOSHost> for ExampleCoapServer {
     fn instantiate(
-        mut linker: &mut Linker<T>,
-        mut store: &mut Store<T>,
+        mut linker: &mut Linker<ArielOSHost>,
+        mut store: &mut Store<ArielOSHost>,
         component: Component,
     ) -> wasmtime::Result<Self> {
         ExampleCoapServer::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)?;
