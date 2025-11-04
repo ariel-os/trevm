@@ -2,7 +2,7 @@ apps:
   - name: coap-server-bindings
     selects:
       - coap-server
-      - ?coap-server-config-unprotected
+      - ?coap-server-config-storage
       - alloc
     env:
       global:
