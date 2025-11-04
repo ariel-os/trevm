@@ -5,7 +5,8 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.40", features = ["derive"]}
-wasmtime = { version = "38.0", default-features = false, features = ["component-model", "async", "cranelift", "pulley"] }
+# Dependency version is locked to get reproducible build output.
+wasmtime = { version = "=38.0", default-features = false, features = ["component-model", "async", "cranelift", "pulley"] }
 miette = { version = "7.2.0", features = ["fancy"] }
 thiserror = { version = "2.0.12" }
 
