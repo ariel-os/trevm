@@ -1,0 +1,28 @@
+name: Payload building
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  rebuild-cwasm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rust-src
+      - uses: taiki-e/install-action@v1
+        with:
+          tool: wasm-tools
+      - run: ./rebuild-all-payloads.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          path: examples/*/*.cwasm
+      - run: git diff --exit-code
+
