@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "examples/*",
+  "examples/[a-z]*",
   "src/ariel-os-bindings",
 ]
 
