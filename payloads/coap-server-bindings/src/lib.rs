@@ -5,7 +5,7 @@ use core::cell::RefCell;
 
 use coap_message_implementations::inmemory::Message;
 use coap_message_implementations::inmemory_write::GenericMessage;
-use coap_handler_implementations::{new_dispatcher, SimpleRendered, HandlerBuilder};
+use coap_handler_implementations::{new_dispatcher, SimpleRendered, HandlerBuilder, SimpleRenderable};
 use coap_handler::{Handler, Reporting};
 use coap_handler::Record as _;
 
@@ -106,9 +106,17 @@ fn initialize_handler() -> Result<(), ()> {
     Ok(())
 }
 
+struct RunUpperCase;
+
+impl SimpleRenderable for RunUpperCase {
+    fn render<W: core::fmt::Write>(&mut self, writer: &mut W) {
+        write!(writer, "Uppercased text is {}", uppercase("Hello World")).unwrap()
+    }
+}
+
 fn build_handler() -> impl Handler + Reporting {
     new_dispatcher()
-                .at(&["example"], SimpleRendered("This resource exists inside a capsule"))
+                .at(&["example"], SimpleRendered(RunUpperCase))
                 .at(&["other_example"], SimpleRendered("Another ressource"))
                 .at(&["inner", "third_example"], SimpleRendered("A deeper resource"))
 }

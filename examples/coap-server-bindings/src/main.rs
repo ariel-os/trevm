@@ -105,6 +105,16 @@ impl CoapServerGuest for ExampleCoapServer {
     }
 }
 
+impl ExampleCoapServerImports for ArielOSHost {
+    fn uppercase(&mut self, s: String) -> String {
+        info!(
+            "WASM asked us to uppercase {:?}. Maybe we can use hardware acceleration for it?",
+            s.as_str()
+        );
+        s.to_uppercase()
+    }
+}
+
 impl CanInstantiate<ArielOSHost> for ExampleCoapServer {
     fn instantiate(
         mut linker: &mut Linker<ArielOSHost>,
