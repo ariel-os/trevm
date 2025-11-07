@@ -10,9 +10,6 @@ Secure connections are enabled by default, and required for all resources except
 ```sh
 [INFO ] CoAP server identity: {8: ... }
 ```
-<p style="color:red"> <b>Note :</b> </p>
-
-> This will not work on the Pico boards because of a peripheral conflict between the wifi and storage modules. To still use them together, change `DMA_CH0` to `DMA_CH1` in [this file](../../build/imports/ariel-os/src/ariel-os-rp/src/storage.rs). Note that this link only works after `laze` has download the ariel-os repository in `build/imports/ariel-os`.
 
 The credentials shipped with the example usually do not authenticate the server:
 They just authorize the client.
