@@ -57,7 +57,7 @@ struct Args {
     toolchain: Option<String>,
 
     /// Additionnal compilation options propagated to cargo
-    #[arg(long = "compile_options", short='C')]
+    #[arg(long = "compile_options", short = 'C')]
     additional: Vec<String>,
 
     #[arg(long, default_value = "pulley32")]
@@ -68,7 +68,7 @@ struct Args {
     fuel: bool,
 
     /// Override default opt-level
-    #[arg(short='O', long="opt-level", value_enum, default_value_t = CLIOptLevel::S)]
+    #[arg(short = 'O', long = "opt-level", value_enum, default_value_t = CLIOptLevel::S)]
     opt_level: CLIOptLevel,
 
     /// Path of the output file
@@ -82,6 +82,10 @@ struct Args {
     /// Outputs a Module instead of a component
     #[arg(short, long)]
     module: bool,
+
+    /// Conserve the intermediate files under `ouput.wasm` and `output.comp.wasm`
+    #[arg(long = "conserve-artifacts", short = 'a')]
+    conserve: bool
 }
 
 #[derive(Debug, thiserror::Error, Diagnostic)]
@@ -97,7 +101,7 @@ enum Error {
 fn main() -> miette::Result<()> {
     let args = Args::parse();
 
-    let Args { path, config, toolchain, additional, fuel, output, wasm_tools, module, opt_level, target } = args;
+    let Args { path, config, toolchain, additional, fuel, output, wasm_tools, module, opt_level, target, conserve } = args;
 
     // Check that the path exists
     assert!(fs::exists(&path).map_err(Error::from)?);
@@ -221,6 +225,19 @@ fn main() -> miette::Result<()> {
     } else {
         String::from("payload.cwasm").into()
     };
+
+    if conserve {
+        // Derive the artifacts names from output
+        let mut art_path = PathBuf::from(out.clone());
+        // initial.wasm
+        art_path.set_extension("wasm");
+        std::fs::copy(&new_path, &art_path).map_err(Error::from)?;
+        if !module {
+            art_path.set_extension("comp.wasm");
+            std::fs::copy("temp.wasm", &art_path).map_err(Error::from)?;
+        }
+    }
+
     if !module {
         precompile("temp.wasm", &target, fuel, out, module)?;
         std::fs::remove_file("temp.wasm").map_err(Error::from)?;
