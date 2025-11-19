@@ -3,15 +3,17 @@
 
 use core::cell::RefCell;
 
+use coap_handler::Record as _;
+use coap_handler::{Handler, Reporting};
+use coap_handler_implementations::{
+    HandlerBuilder, SimpleRenderable, SimpleRendered, new_dispatcher,
+};
 use coap_message_implementations::inmemory::Message;
 use coap_message_implementations::inmemory_write::GenericMessage;
-use coap_handler_implementations::{new_dispatcher, SimpleRendered, HandlerBuilder, SimpleRenderable};
-use coap_handler::{Handler, Reporting};
-use coap_handler::Record as _;
 
 extern crate alloc;
-use alloc::vec::Vec;
 use alloc::string::String;
+use alloc::vec::Vec;
 
 #[global_allocator]
 static ALLOCATOR: talc::Talck<talc::locking::AssumeUnlockable, talc::ClaimOnOom> = {
@@ -35,9 +37,8 @@ struct SendCell<T>(RefCell<T>);
 unsafe impl<T> Send for SendCell<T> {}
 unsafe impl<T> Sync for SendCell<T> {}
 
-
-use exports::ariel::wasm_bindings::coap_server_guest::{Guest, CoapErr};
 use ariel::wasm_bindings::log_api::info;
+use exports::ariel::wasm_bindings::coap_server_guest::{CoapErr, Guest};
 
 struct MyComponent;
 
@@ -58,14 +59,16 @@ impl Guest for MyComponent {
 type HandlerType = impl Handler + Reporting;
 static HANDLER: SendCell<Option<HandlerType>> = SendCell(RefCell::new(None));
 
-
-fn coap_run(mut code: u8, observed_len: u32,  mut message: Vec<u8>) -> Result<(u8, Vec<u8>), CoapErr> {
+fn coap_run(
+    mut code: u8,
+    observed_len: u32,
+    mut message: Vec<u8>,
+) -> Result<(u8, Vec<u8>), CoapErr> {
     let mut handler = HANDLER.0.borrow_mut();
     if handler.is_none() {
         return Err(CoapErr::HandlerNotBuilt);
     }
     let handler = handler.as_mut().unwrap();
-
 
     let reencoded = Message::new(code, &message[..observed_len as usize]);
 
@@ -98,7 +101,7 @@ fn initialize_handler() -> Result<(), ()> {
     match HANDLER.0.borrow_mut() {
         mut h if h.is_none() => {
             *h = Some(build_handler());
-        },
+        }
         _ => {
             info("WARNING! The handler can only be built once");
         }
@@ -116,9 +119,12 @@ impl SimpleRenderable for RunUpperCase {
 
 fn build_handler() -> impl Handler + Reporting {
     new_dispatcher()
-                .at(&["example"], SimpleRendered(RunUpperCase))
-                .at(&["other_example"], SimpleRendered("Another ressource"))
-                .at(&["inner", "third_example"], SimpleRendered("A deeper resource"))
+        .at(&["example"], SimpleRendered(RunUpperCase))
+        .at(&["other_example"], SimpleRendered("Another ressource"))
+        .at(
+            &["inner", "third_example"],
+            SimpleRendered("A deeper resource"),
+        )
 }
 
 fn report_resource() -> Result<Vec<String>, CoapErr> {
@@ -128,23 +134,22 @@ fn report_resource() -> Result<Vec<String>, CoapErr> {
     }
     let handler = handler.as_mut().unwrap();
 
-
     let mut resources = Vec::new();
 
     for record in handler.report() {
         // intersperse with "/";
-        let mut complete_path = record.path().fold(String::new(), |a, b| a + b.as_ref() + "/");
+        let mut complete_path = record
+            .path()
+            .fold(String::new(), |a, b| a + b.as_ref() + "/");
         // remove the trailing "/";
         complete_path.truncate(complete_path.len() - 1);
         resources.push(complete_path);
     }
 
-
     Ok(resources)
 }
 
 export!(MyComponent);
-
 
 #[panic_handler]
 fn panic_handler(_: &core::panic::PanicInfo) -> ! {

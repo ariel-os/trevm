@@ -19,15 +19,14 @@ generate!({
     generate_all,
 });
 
-use ariel::wasm_bindings::time_api::{sleep, now_as_millis};
-use ariel::wasm_bindings::rng_api::RNG;
 use ariel::wasm_bindings::log_api::info;
+use ariel::wasm_bindings::rng_api::RNG;
+use ariel::wasm_bindings::time_api::{now_as_millis, sleep};
 struct MyComponent;
 
 impl Guest for MyComponent {
     fn run() -> () {
         info("Hello from inside the capsule");
-
 
         info("Here is 10 *random* integer between 0 and 100");
         for _ in 0..10 {
@@ -51,7 +50,6 @@ impl Guest for MyComponent {
 }
 
 export!(MyComponent);
-
 
 #[panic_handler]
 fn panic_handler(_: &core::panic::PanicInfo) -> ! {
