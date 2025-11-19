@@ -19,14 +19,13 @@ generate!({
     generate_all,
 });
 
-use ariel::wasm_bindings::time_api::{sleep, now_as_millis};
 use ariel::wasm_bindings::log_api::info;
+use ariel::wasm_bindings::time_api::{now_as_millis, sleep};
 struct MyComponent;
 
 impl Guest for MyComponent {
     fn run() -> () {
         info("Hello from payload A");
-
 
         let mut prefix = "It has been ".to_string();
         prefix.push_str(now_as_millis().to_string().as_str());
@@ -38,7 +37,6 @@ impl Guest for MyComponent {
 }
 
 export!(MyComponent);
-
 
 #[panic_handler]
 fn panic_handler(_: &core::panic::PanicInfo) -> ! {

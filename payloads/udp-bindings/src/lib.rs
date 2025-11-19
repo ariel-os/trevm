@@ -15,8 +15,8 @@ generate!({
     generate_all,
 });
 
-use ariel::wasm_bindings::udp_api::UdpSocket;
 use ariel::wasm_bindings::log_api::info;
+use ariel::wasm_bindings::udp_api::UdpSocket;
 struct MyComponent;
 
 impl Guest for MyComponent {
@@ -34,7 +34,6 @@ impl Guest for MyComponent {
             Ok(None) => {
                 // Not packet were ready to be received
                 // info("N");
-
             }
             Err(_) => {
                 info("Something's wrong with the network configuration");
@@ -45,7 +44,6 @@ impl Guest for MyComponent {
 }
 
 export!(MyComponent);
-
 
 #[panic_handler]
 fn panic_handler(_: &core::panic::PanicInfo) -> ! {

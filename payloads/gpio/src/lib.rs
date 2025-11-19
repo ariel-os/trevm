@@ -19,9 +19,9 @@ generate!({
     generate_all,
 });
 
-use ariel::wasm_bindings::time_api::sleep;
+use ariel::wasm_bindings::gpio_api::{toggle_led, wait_for_button_low};
 use ariel::wasm_bindings::log_api::info;
-use ariel::wasm_bindings::gpio_api::{wait_for_button_low, toggle_led};
+use ariel::wasm_bindings::time_api::sleep;
 struct MyComponent;
 
 impl Guest for MyComponent {
@@ -36,7 +36,6 @@ impl Guest for MyComponent {
 }
 
 export!(MyComponent);
-
 
 #[panic_handler]
 fn panic_handler(_: &core::panic::PanicInfo) -> ! {
