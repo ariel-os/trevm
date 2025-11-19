@@ -2872,6 +2872,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "insecure-updates-fuel"
+version = "0.0.0"
+dependencies = [
+ "ariel-os",
+ "ariel-os-bindings",
+ "ariel-os-boards",
+ "embassy-futures",
+ "wasmtime",
+]
+
+[[package]]
 name = "instability"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
