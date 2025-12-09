@@ -1,0 +1,24 @@
+package ariel:wasm-bindings@0.0.1;
+
+interface ble-api {
+    // Bluetooth address
+    record bd-addr {
+        a: u8,
+        b: u8,
+        c: u8,
+        d: u8,
+        e: u8,
+        f: u8,
+    }
+
+    /// The EventHandler trait from TrouBLE consists of the
+    /// on_adv_reports function that consumes an LeAdvReportsIter<'_> and returns nothing.
+    /// this function is how the component participates to this trait.
+    on-single-report: func(addr: bd-addr) -> result;
+
+    return-stats: func() -> list<tuple<bd-addr, u64>>;
+}
+
+world ble {
+    export ble-api;
+}

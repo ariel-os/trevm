@@ -2,6 +2,7 @@ subdirs:
   - async-bindings
   - gpio
   - udp-bindings
+  - ble-scanner
   - coap-server-bindings
   - simple-updates
   - insecure-updates

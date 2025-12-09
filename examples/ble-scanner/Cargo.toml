@@ -1,0 +1,21 @@
+[package]
+name = "ble-scanner-trevm"
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+ariel-os = { workspace = true, features = ["time"] }
+ariel-os-boards = { workspace = true }
+ariel-os-bindings = { path = "../../src/ariel-os-bindings", features = ["log"] }
+
+embassy-futures = { version = "0.1.1" }
+trouble-host = { workspace = true, features = ["derive", "scan"] }
+wasmtime = { workspace = true, default-features = false, features = [
+  "runtime",
+  "pulley",
+  "component-model",
+] }

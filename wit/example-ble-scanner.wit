@@ -1,0 +1,6 @@
+package example:example;
+
+world example-ble-scanner {
+    import ariel:wasm-bindings/log-api@0.0.1;
+    export ariel:wasm-bindings/ble-api@0.0.1;
+}

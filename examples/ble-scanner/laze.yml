@@ -1,0 +1,13 @@
+apps:
+  - name: ble-scanner-trevm
+    selects:
+      - alloc
+      - ble-central
+    env:
+      global:
+        # Under most of the observed heap sizes on the NRF52840DK.
+        # Only relevant for the ESP32 chips which allocate an empty heap by default.
+        heapsize_required:
+          - "150000"
+        executor_stacksize_required:
+          - "16384"
