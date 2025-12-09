@@ -2,22 +2,28 @@
 [unstable]
 build-std = ["core", "alloc", "panic_abort"]
 build-std-features = [
-    "optimize_for_size",
-    # "panic_immediate_abort", # Uncomment this on older nightly compiler
-    ]
+  "optimize_for_size",
+  # "panic_immediate_abort", # Uncomment this on older nightly compiler
+]
 
 [build]
 rustflags = [
-    "-Z", "location-detail=none",
-    "-Z", "unstable-options", "-Cpanic=immediate-abort", # Comment this out on older nightly compilers
-    "-C", "link-arg=--page-size=1",
-    "-C", "link-arg=--initial-memory=32768",
-    "-C", "link-arg=-zstack-size=8192" # Doubled initial stack size because the coap example exhausts the 4096 bytes stack.
+  "-Z",
+  "location-detail=none",
+  "-Z",
+  "unstable-options",
+  "-Cpanic=immediate-abort",         # Comment this out on older nightly compilers
+  "-C",
+  "link-arg=--page-size=1",
+  "-C",
+  "link-arg=--initial-memory=32768",
+  "-C",
+  "link-arg=-zstack-size=8192",      # Doubled initial stack size because the coap example exhausts the 4096 bytes stack.
 ]
 target = "wasm32v1-none"
 
 [profile.release]
-opt-level= "s" # Overriden by precompile_wasm.rs
+opt-level = "s"   # Overriden by precompile_wasm.rs
 codegen-units = 1
 lto = "fat"
 debug = false

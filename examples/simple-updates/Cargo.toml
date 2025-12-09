@@ -10,7 +10,15 @@ workspace = true
 [dependencies]
 ariel-os = { workspace = true, features = ["time", "external-interrupts"] }
 ariel-os-boards = { workspace = true }
-ariel-os-bindings = { path = "../../src/ariel-os-bindings", features = ["log", "time"] }
+ariel-os-bindings = { path = "../../src/ariel-os-bindings", features = [
+  "log",
+  "time",
+] }
 
 embassy-futures = { version = "0.1.1", default-features = false }
-wasmtime = { workspace = true, default-features = false, features = ["runtime", "pulley", "component-model", "async"] }
+wasmtime = { workspace = true, default-features = false, features = [
+  "runtime",
+  "pulley",
+  "component-model",
+  "async",
+] }

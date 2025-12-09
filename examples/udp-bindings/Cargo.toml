@@ -10,6 +10,13 @@ workspace = true
 [dependencies]
 ariel-os = { workspace = true, features = ["time"] }
 ariel-os-boards = { workspace = true }
-ariel-os-bindings = { path = "../../src/ariel-os-bindings", features = ["udp", "log"] }
+ariel-os-bindings = { path = "../../src/ariel-os-bindings", features = [
+  "udp",
+  "log",
+] }
 
-wasmtime = { workspace = true, default-features = false, features = ["runtime", "pulley", "component-model"] }
+wasmtime = { workspace = true, default-features = false, features = [
+  "runtime",
+  "pulley",
+  "component-model",
+] }

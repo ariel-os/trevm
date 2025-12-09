@@ -8,7 +8,20 @@ publish = false
 workspace = true
 
 [dependencies]
-ariel-os = { workspace = true , features = ["time", "external-interrupts", "alloc"] }
+ariel-os = { workspace = true, features = [
+  "time",
+  "external-interrupts",
+  "alloc",
+] }
 ariel-os-boards = { workspace = true }
-ariel-os-bindings = { path = "../../src/ariel-os-bindings", default-features = false, features = ["log", "time", "gpio"] }
-wasmtime = { workspace = true, default-features = false, features = ["runtime", "pulley", "component-model", "async"] }
+ariel-os-bindings = { path = "../../src/ariel-os-bindings", default-features = false, features = [
+  "log",
+  "time",
+  "gpio",
+] }
+wasmtime = { workspace = true, default-features = false, features = [
+  "runtime",
+  "pulley",
+  "component-model",
+  "async",
+] }
