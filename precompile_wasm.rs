@@ -277,6 +277,10 @@ fn precompile<P: AsRef<Path>>(path: P, target: &str, fuel: bool, out: PathBuf, m
     // Enable fuel intstrumentation to prevent malevolent code from running indefinitely in the VM
     config.consume_fuel(fuel);
 
+    if module { // Ensures that the runtime using this doesn't try to use the component Model
+        config.wasm_component_model(false);
+    }
+
     // Create an `Engine` with that configuration.
     let engine = Engine::new(&config).map_err(Error::from)?;
 
