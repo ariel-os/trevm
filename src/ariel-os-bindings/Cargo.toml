@@ -3,7 +3,6 @@ name = "ariel-os-bindings"
 version = "0.1.0"
 license.workspace = true
 edition.workspace = true
-# repository.workspace = true
 
 [dependencies]
 ariel-os-debug = { workspace = true, optional = true }
@@ -14,8 +13,7 @@ ariel-os-hal = { workspace = true, optional = true }
 
 rand_core = { workspace = true, optional = true }
 
-
-coap-request = {version = "0.2.0-alpha.2", optional = true }
+coap-request = { version = "0.2.0-alpha.2", optional = true }
 coap-request-implementations = { version = "0.1.0-alpha.4", optional = true }
 coap-handler-implementations = { version = "0.5.0", optional = true }
 coap-message = { version = "0.3.2", optional = true }
@@ -24,8 +22,9 @@ coap-numbers = { version = "0.2.2", optional = true }
 coap-message-implementations = { version = "0.1.8", optional = true }
 coap-message-utils = { version = "0.3.0", optional = true }
 
-
-wasmtime = { workspace = true, default-features = false, features = ["component-model"]}
+wasmtime = { workspace = true, default-features = false, features = [
+  "component-model",
+] }
 embassy-futures = { version = "0.1.1", default-features = false, optional = true }
 
 [lints]
@@ -38,9 +37,13 @@ time = ["ariel-os-embassy/time", "dep:embassy-futures"]
 log = ["dep:ariel-os-debug"]
 async = ["wasmtime/async"]
 coap-server-guest = [
-    "dep:coap-message", "dep:coap-message-implementations", "dep:coap-message-utils",
-    "dep:coap-handler", "dep:coap-handler-implementations",
-    "dep:coap-request", "dep:coap-request-implementations",
-    "dep:coap-numbers",
+  "dep:coap-message",
+  "dep:coap-message-implementations",
+  "dep:coap-message-utils",
+  "dep:coap-handler",
+  "dep:coap-handler-implementations",
+  "dep:coap-request",
+  "dep:coap-request-implementations",
+  "dep:coap-numbers",
 ]
 gpio = ["dep:ariel-os-hal"]
