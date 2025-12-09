@@ -1,5 +1,5 @@
 [package]
-name = "UDP-bindings"
+name = "udp-bindings"
 license.workspace = true
 edition.workspace = true
 publish = false

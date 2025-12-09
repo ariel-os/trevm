@@ -1,5 +1,5 @@
 [package]
-name = "gpio-wasm-explore"
+name = "gpio-wasm"
 license.workspace = true
 edition.workspace = true
 publish = false
