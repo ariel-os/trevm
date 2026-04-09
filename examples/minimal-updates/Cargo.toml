@@ -1,0 +1,42 @@
+[package]
+name = "minimal-updates"
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+ariel-os = { workspace = true, features = ["coap",  "random", "i2c", "defmt"] }
+
+ariel-os-bindings = { path = "../../src/ariel-os-bindings", features = [
+  "log",
+  "time",
+  "rng",
+] }
+
+embedded-nal-coap = "=0.1.0-alpha.5"
+coap-handler-implementations = "0.6.1"
+coap-handler = "0.2.0"
+coap-message = "0.3.2"
+coap-numbers = "0.2"
+# error_title allows sending out messages; error_request_body_error_position
+# would also be welcome, but so far I don't think wasmtime exports that (plus
+# it probably take a lot of source map magic to make real use of it).
+coap-message-utils = { version = "0.3.0", features = ["error_title"] }
+
+wasmtime = { workspace = true, default-features = false, features = [
+  "pulley",
+  "runtime",
+  "component-model",
+] }
+
+rand_core = { workspace = true }
+
+once_cell = { version = "1.21.3", default-features = false, features = [
+  "critical-section",
+] }
+
+embassy-sync = { version = "0.7.2" }
+embassy-futures = { version = "0.1.1", default-features = false }

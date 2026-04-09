@@ -11,3 +11,4 @@ subdirs:
   - persistent-with-bindings
   - fake-sensor
   - sandbox-no-bindings
+  - minimal-updates

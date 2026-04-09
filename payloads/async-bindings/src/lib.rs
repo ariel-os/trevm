@@ -45,7 +45,9 @@ impl Guest for MyComponent {
         prefix.push_str(" ms since boot");
         info(&prefix);
         info("Starting an infinite loop");
-        loop {}
+        loop {
+            sleep(1000);
+        }
     }
 }
 
