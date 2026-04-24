@@ -1,8 +1,6 @@
 apps:
-  - name:  minimal-update
+  - name:  updatable-async
     context:
-      - nrf52840dk
-      - rpi-pico2-w
       - espressif-esp32-c6-devkitc-1
     selects:
       - coap-server

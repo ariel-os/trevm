@@ -1,5 +1,5 @@
 [package]
-name = "minimal-updates"
+name = "updatable-async"
 license.workspace = true
 edition.workspace = true
 publish = false
