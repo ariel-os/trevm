@@ -28,7 +28,7 @@ impl Guest for MyComponent {
     fn run() -> () {
         info("Hello from inside the capsule");
 
-        info("Here is 10 *random* integer between 0 and 100");
+        info("Here is 10 *random* integers between 0 and 100");
         for _ in 0..10 {
             let random_u32 = RNG::next_u32() % 100;
             info(random_u32.to_string().as_str());
@@ -45,7 +45,9 @@ impl Guest for MyComponent {
         prefix.push_str(" ms since boot");
         info(&prefix);
         info("Starting an infinite loop");
-        loop {}
+        loop {
+            sleep(1000); // Sleeping here enables the runtime (e.g. a coap handler for transmitting a different capsule) to continue execution
+        }
     }
 }
 
