@@ -205,11 +205,11 @@ async fn runner_task() {
     ExampleAsync::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state).unwrap();
 
     loop {
-        payload = wait_for_payload(payload).await;
-        info!("Current payload size: {} bytes", payload.as_bytes().len());
-
-        if let Some(next_payload) = run_payload(&engine, &linker, &payload).await {
-            payload = next_payload;
+        info!("New payload size: {} bytes", payload.as_bytes().len());
+        let payload_option = run_payload(&engine, &linker, &payload).await;
+        payload = match payload_option {
+            Some(payload) => payload,
+            None => wait_for_payload().await,
         }
     }
 }
@@ -233,18 +233,16 @@ fn make_engine() -> Engine {
     Engine::new(&cfg).unwrap()
 }
 
-async fn wait_for_payload(mut payload: Payload) -> Payload {
-    while payload.is_empty() {
+async fn wait_for_payload() -> Payload {
+    loop {
         match UPDATE.wait().await {
             UpdateMsg::Install(new_img) => {
                 info!("Accepted new capsule image ({} bytes)", new_img.len());
-                payload = Payload::Owned(new_img.into_boxed_slice());
+                return Payload::Owned(new_img.into_boxed_slice());
             }
             UpdateMsg::Stop => {}
         }
     }
-
-    payload
 }
 
 async fn run_payload(
@@ -272,7 +270,7 @@ async fn run_payload(
         Either::First(UpdateMsg::Install(new_img)) => {
             Some(Payload::Owned(new_img.into_boxed_slice()))
         }
-        Either::First(UpdateMsg::Stop) => Some(Payload::Static(&[])),
+        Either::First(UpdateMsg::Stop) => None,
         Either::Second(_) => None,
     };
 
