@@ -55,10 +55,6 @@ impl Payload {
             Payload::Owned(bytes) => bytes,
         }
     }
-
-    fn is_empty(&self) -> bool {
-        self.as_bytes().is_empty()
-    }
 }
 
 struct VmControl {
