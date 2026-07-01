@@ -1,4 +1,4 @@
-# Tiny Rust Embedded Virtual Machines (trevm)
+# Tiny Rust Embedded Virtual Machines (treVM)
 This repository showcases small Rust embedded virtual machines, encapsuled and bolted on Ariel OS. Open source examples of code are given which you can run on a variety of Cortex-M and RISC-V boards (see below).
 
 ## WebAssembly
@@ -41,4 +41,10 @@ The various parameters used for initial compilation and precompilation have been
 - [Async Bindings for RNG, Timer, Log](./examples/async-bindings): This example shows how Ariel OS can asynchronously run wasm components that yield regularly and that call asynchronous host functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w
 - [UDP Bindings](./examples/udp-bindings): This example showcases how a wasm capsule can receive and send UDP packets by using the approriate functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1
 - [CoAP Server Bindings](./examples/coap-server-bindings): This example shows how to run a coap-server through a wasm capsule by deferring the processing of selects message to the wasm capsule. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1
-- [GPIO through Wasm](./examples/gpio/): This example showcases a simple blinky running through a wasm capsule. *Recommanded boards for this example*: nrf52840dk, nrf9160dk
+- [GPIO through Wasm](./examples/gpio/): This example showcases a simple blinky running through a wasm capsule. *Recommended boards for this example*: nrf52840dk, nrf9160dk
+
+## Further Reading & Reference
+To cite this work and/or to read more about treVM, the reference article is indicated below.
+
+A. Lavandier, B. Buil, C. Gaber, E. Baccelli, [treVM: Tiny Rust Embedded Virtual Machines with
+WASM on Variable Resource-Constrained Hardware](https://arxiv.org/pdf/2604.27570), IEEE DCOSS-IoT, 2026.
