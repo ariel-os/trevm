@@ -1,11 +1,9 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 
-use ariel_os::coap::coap_run;
 use ariel_os::debug::log::{Debug2Format, info};
 
 use coap_handler::Handler;
-use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder, new_dispatcher};
 use coap_message::{Code, OptionNumber};
 use coap_message_utils::Error as CoapError;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
@@ -19,12 +17,12 @@ pub enum VmEvent {
     Finished,
 }
 
-struct VmControl {
+pub struct VmControl {
     payload: Vec<u8>,
 }
 
 impl VmControl {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             payload: Vec::new(),
         }
@@ -140,16 +138,4 @@ impl Handler for VmControl {
 
 pub async fn wait_for_update_request() -> Box<[u8]> {
     SUIT_VERIFY_SIGNAL.wait().await
-}
-
-#[ariel_os::task(autostart)]
-async fn coap_task() {
-    let control = VmControl::new();
-
-    let handler = new_dispatcher()
-        .at_with_attributes(&["vm-control"], &[], control)
-        .with_wkc();
-
-    info!("Starting CoAP handler");
-    coap_run(handler).await;
 }

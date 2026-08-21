@@ -66,4 +66,6 @@ The key pair in `suit/` is for this example only. Firmware verification uses `su
 
 This example has been tested on the following boards:
 
-- ESP32-C6-DevKitC-1
+- `espressif-esp32-c6-devkitc-1`
+- `dfrobot-firebeetle2-esp32-c6`
+- `rpi-pico2-w`

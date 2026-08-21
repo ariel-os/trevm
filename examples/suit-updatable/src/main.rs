@@ -5,8 +5,10 @@ extern crate alloc;
 use core::ptr::NonNull;
 
 use alloc::vec::Vec;
+use ariel_os::coap::coap_run;
 use ariel_os::debug::log::{Debug2Format, error, info, warn};
 
+use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder, new_dispatcher};
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::channel::Channel;
 
@@ -18,7 +20,7 @@ use wasmtime::{Config, Engine, Error as WasmtimeError, Store};
 use ariel_os_bindings::wasm::ArielOSHost;
 
 use crate::suit::{UpdateError, build_and_authenticate_manifest, fetch_and_verify_update};
-use crate::vm_control::{VmEvent, wait_for_update_request};
+use crate::vm_control::{VmControl, VmEvent, wait_for_update_request};
 
 mod coap_fetch;
 mod suit;
@@ -39,6 +41,18 @@ bindgen!({
 static VM_DROP_REQUESTS: Channel<CriticalSectionRawMutex, (), 1> = Channel::new();
 static VM_STATUS_SIGNAL: Channel<CriticalSectionRawMutex, VmEvent, 1> = Channel::new();
 static UPDATE_RESULTS: Channel<CriticalSectionRawMutex, Result<Vec<u8>, ()>, 1> = Channel::new();
+
+#[ariel_os::task(autostart)]
+async fn coap_task() {
+    let control = VmControl::new();
+
+    let handler = new_dispatcher()
+        .at_with_attributes(&["vm-control"], &[], control)
+        .with_wkc();
+
+    info!("Starting CoAP handler");
+    coap_run(handler).await;
+}
 
 #[ariel_os::task(autostart)]
 async fn suit_update_task() {
