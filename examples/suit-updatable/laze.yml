@@ -1,0 +1,20 @@
+apps:
+  - name:  suit-updatable
+    context:
+      - espressif-esp32-c6-devkitc-1
+      - dfrobot-firebeetle2-esp32-c6
+      - rpi-pico2-w
+    selects:
+      - coap-client
+      - coap-server
+      - ?coap-server-config-storage
+      - alloc
+    env:
+      global:
+        # Must be enough for two payloads, so requirements depend on the transmitted
+        # payloads' sizes.
+        heapsize_required:
+          - "200000"
+        RUSTFLAGS:
+          # Disable SIMD in Wasmtime's interpreter
+          - --cfg pulley_disable_interp_simd
