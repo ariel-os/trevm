@@ -20,9 +20,11 @@ use alloc::format;
 use alloc::string::String;
 pub struct MyComponent;
 
+const FIB_ARG: &'static str = env!("FIB_NUM");
+
 impl Guest for MyComponent {
     fn run() -> String {
-        format!("The thirtieth fibonacci number is {}", fibonacci(30))
+        format!("fib({}) =  {}", FIB_ARG, fibonacci(str::parse::<u32>(FIB_ARG).unwrap()))
     }
 }
 
