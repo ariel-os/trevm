@@ -4,7 +4,7 @@
 use ariel_os::time::Timer;
 use ariel_os::{
     debug::{ExitCode, exit},
-    log::{info, Debug2Format},
+    log::{Debug2Format, info},
     reexports::embassy_net::udp::{RecvError, UdpMetadata},
 };
 
