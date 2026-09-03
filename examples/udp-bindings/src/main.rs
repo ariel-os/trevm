@@ -1,7 +1,8 @@
 #![no_main]
 #![no_std]
 
-use ariel_os::debug::{ExitCode, exit, log::info};
+use ariel_os::debug::{ExitCode, exit};
+use ariel_os::log::info;
 use ariel_os::time::Timer;
 
 use ariel_os::net;

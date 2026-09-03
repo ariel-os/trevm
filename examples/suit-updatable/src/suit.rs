@@ -1,7 +1,7 @@
 use core::{cell::RefCell, net::SocketAddr, str::FromStr};
 
 use alloc::vec::Vec;
-use ariel_os::debug::log::{Debug2Format, error};
+use ariel_os::log::{Debug2Format, error};
 use ariel_os::time::Duration;
 use dress_up::manifest::Manifest;
 use dress_up::{AsyncOperatingHooks, Authenticated, SuitManifest};

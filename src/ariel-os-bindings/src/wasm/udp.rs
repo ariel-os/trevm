@@ -1,4 +1,4 @@
-use ariel_os_debug::log::info;
+use ariel_os_log::info;
 use ariel_os_embassy::reexports::embassy_net;
 
 use embassy_net::IpAddress;

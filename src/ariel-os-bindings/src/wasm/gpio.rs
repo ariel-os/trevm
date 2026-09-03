@@ -17,8 +17,8 @@ pub use ariel::wasm_bindings::gpio_api::{Host, HostWithStore, add_to_linker};
 
 #[derive(Default)]
 pub(crate) struct ArielGpioHost {
-    pub(crate) led: Option<Output>,
-    pub(crate) button: Option<IntEnabledInput>,
+    pub(crate) led: Option<Output<'static>>,
+    pub(crate) button: Option<IntEnabledInput<'static>>,
 }
 
 impl Host for ArielGpioHost {
@@ -45,10 +45,10 @@ impl Host for ArielOSHost {
 }
 
 impl ArielOSHost {
-    pub fn bind_led(&mut self, led: Output) {
+    pub fn bind_led(&mut self, led: Output<'static>) {
         self.gpio_host.led = Some(led);
     }
-    pub fn bind_button(&mut self, button: IntEnabledInput) {
+    pub fn bind_button(&mut self, button: IntEnabledInput<'static>) {
         self.gpio_host.button = Some(button);
     }
 }

@@ -67,7 +67,7 @@ impl Host for ArielOSHost {
             match sensor.wait_for_reading().await {
                 // Sensor could have been filtered out before
                 Err(ReadingError::NotMeasuring) => {
-                    ariel_os_debug::log::debug!(
+                    ariel_os_log::debug!(
                         "Sensor {:?} of categories {:?} wasn't measuring, possibly because it was filtered out before",
                         sensor.display_name(),
                         sensor.categories()
@@ -110,7 +110,7 @@ impl Host for ArielOSHost {
             match block_on(sensor.wait_for_reading()) {
                 // Sensor could have been filtered out before
                 Err(ReadingError::NotMeasuring) => {
-                    ariel_os_debug::log::debug!(
+                    ariel_os_log::debug!(
                         "Sensor {:?} of categories {:?} wasn't measuring, possibly because it was filtered out before",
                         sensor.display_name(),
                         sensor.categories()

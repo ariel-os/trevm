@@ -18,7 +18,7 @@ edition = "2024"
 ariel-os = { path = "build/imports/ariel-os/src/ariel-os" }
 ariel-os-alloc = { path = "build/imports/ariel-os/src/ariel-os-alloc", default-features = false }
 ariel-os-boards = { path = "build/imports/ariel-os/src/ariel-os-boards", default-features = false }
-ariel-os-debug = { path = "build/imports/ariel-os/src/ariel-os-debug", default-features = false }
+ariel-os-log = { path = "build/imports/ariel-os/src/ariel-os-log", default-features = false }
 ariel-os-embassy = { path = "build/imports/ariel-os/src/ariel-os-embassy", default-features = false }
 ariel-os-coap = { path = "build/imports/ariel-os/src/ariel-os-coap", default-features = false }
 ariel-os-random = { path = "build/imports/ariel-os/src/ariel-os-random", default-features = false }

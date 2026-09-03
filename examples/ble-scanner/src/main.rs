@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
 
-use ariel_os::debug::log::{defmt, info};
+use ariel_os::log::{Debug2Format, info};
 use ariel_os::debug::{ExitCode, exit};
 
 use ariel_os::time::{Duration, Timer};
@@ -34,7 +34,7 @@ use exports::ariel::wasm_bindings::ble_api::BdAddr;
 #[ariel_os::task(autostart)]
 async fn main() {
     let res = run_wasm_coap_server().await;
-    info!("{:?}", defmt::Debug2Format(&res));
+    info!("{:?}", Debug2Format(&res));
     Timer::after_millis(100).await;
     exit(ExitCode::SUCCESS);
 }

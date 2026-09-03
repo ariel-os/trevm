@@ -6,7 +6,7 @@ extern crate alloc;
 use alloc::{string::String, vec::Vec};
 
 use ariel_os::coap::coap_run;
-use ariel_os::debug::log::{error, info};
+use ariel_os::log::{error, info};
 use ariel_os::debug::{ExitCode, exit};
 
 use ariel_os::time::Timer;

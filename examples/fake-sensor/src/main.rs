@@ -4,7 +4,7 @@
 mod sensor;
 
 use ariel_os::{
-    debug::{ExitCode, exit, log::info},
+    debug::{ExitCode, exit}, log::info,
     time::Timer,
 };
 
