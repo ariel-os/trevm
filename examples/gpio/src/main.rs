@@ -3,8 +3,9 @@
 
 use ariel_os_boards::pins;
 
-use ariel_os::debug::{ExitCode, exit, log::info};
+use ariel_os::debug::{ExitCode, exit};
 use ariel_os::gpio::{Input, Level, Output, Pull};
+use ariel_os::log::info;
 
 use wasmtime::component::{Component, HasSelf, Linker, bindgen};
 use wasmtime::{Config, Engine, Store};

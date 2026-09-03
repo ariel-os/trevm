@@ -6,7 +6,7 @@ use core::ptr::NonNull;
 
 use alloc::vec::Vec;
 use ariel_os::coap::coap_run;
-use ariel_os::debug::log::{Debug2Format, error, info, warn};
+use ariel_os::log::{Debug2Format, error, info, warn};
 
 use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder, new_dispatcher};
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;

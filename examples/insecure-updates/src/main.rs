@@ -3,10 +3,8 @@
 
 use ariel_os::time::Timer;
 use ariel_os::{
-    debug::{
-        ExitCode, exit,
-        log::{defmt, info},
-    },
+    debug::{ExitCode, exit},
+    log::{Debug2Format, info},
     reexports::embassy_net::udp::{RecvError, UdpMetadata},
 };
 
@@ -42,7 +40,7 @@ const USIZE_BYTES: usize = (usize::BITS / 8) as usize;
 #[ariel_os::task(autostart)]
 async fn main() {
     let r = run_wasm().await;
-    info!("{:?}", defmt::Debug2Format(&r));
+    info!("{:?}", Debug2Format(&r));
     Timer::after_millis(100).await;
     exit(ExitCode::SUCCESS);
 }
@@ -64,7 +62,6 @@ fn configure_engine() -> wasmtime::Result<Engine> {
     config.memory_reservation_for_growth(0);
 
     // async support
-    config.async_support(true);
     config.async_stack_size(4096);
 
     Ok(Engine::new(&config)?)

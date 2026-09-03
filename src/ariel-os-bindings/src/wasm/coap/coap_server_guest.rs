@@ -1,6 +1,5 @@
 use core::fmt::Debug;
 
-use ariel_os_debug::log::defmt::Format;
 use wasmtime::{
     Store,
     component::{Component, Linker},
@@ -86,7 +85,7 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
         engine: &wasmtime::Engine,
     ) -> wasmtime::Result<R>
     where
-        R: Debug + Format,
+        R: Debug,
         G: EphemeralCapsule<T, R>,
     {
         // SAFETY:
@@ -144,7 +143,7 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
         engine: &wasmtime::Engine,
     ) -> wasmtime::Result<R>
     where
-        R: Debug + Format,
+        R: Debug,
         G: EphemeralCapsule<T, R>,
     {
         // SAFETY:
@@ -169,7 +168,7 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
         engine: &wasmtime::Engine,
     ) -> wasmtime::Result<R>
     where
-        R: Debug + Format,
+        R: Debug,
         G: EphemeralCapsule<T, R>,
     {
         let WasmHandlerState::NotRunning { store_data } =

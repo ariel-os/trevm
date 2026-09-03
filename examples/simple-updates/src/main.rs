@@ -1,10 +1,8 @@
 #![no_main]
 #![no_std]
 
-use ariel_os::debug::{
-    ExitCode, exit,
-    log::{defmt, info},
-};
+use ariel_os::debug::{ExitCode, exit};
+use ariel_os::log::{Debug2Format, info};
 use ariel_os::time::Timer;
 use ariel_os_boards::pins;
 
@@ -47,7 +45,7 @@ group_peripherals!(Peripherals {
 #[ariel_os::task(autostart, peripherals)]
 async fn main(p: Peripherals) {
     let r = run_wasm(p).await;
-    info!("{:?}", defmt::Debug2Format(&r));
+    info!("{:?}", Debug2Format(&r));
     Timer::after_millis(100).await;
     exit(ExitCode::SUCCESS);
 }
@@ -69,7 +67,6 @@ fn configure_engine() -> wasmtime::Result<Engine> {
     config.memory_reservation_for_growth(0);
 
     // async support
-    config.async_support(true);
     config.async_stack_size(4096);
 
     Ok(Engine::new(&config)?)

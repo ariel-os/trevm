@@ -8,7 +8,7 @@ publish = false
 workspace = true
 
 [dependencies]
-ariel-os = { workspace = true, features = ["coap", "sensors", "random"] }
+ariel-os = { workspace = true, features = ["coap", "sensors", "random", "time"] }
 
 ariel-os-bindings = { path = "../../src/ariel-os-bindings", features = [
   "log",

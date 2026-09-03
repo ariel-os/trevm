@@ -1,7 +1,7 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 
-use ariel_os::debug::log::{Debug2Format, info};
+use ariel_os::log::{Debug2Format, info};
 
 use coap_handler::Handler;
 use coap_message::{Code, OptionNumber};

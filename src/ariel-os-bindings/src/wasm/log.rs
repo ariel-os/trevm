@@ -1,4 +1,4 @@
-use ariel_os_debug::log::info;
+use ariel_os_log::info;
 
 extern crate alloc;
 use alloc::string::String;

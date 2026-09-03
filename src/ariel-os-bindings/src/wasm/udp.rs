@@ -1,5 +1,5 @@
-use ariel_os_debug::log::info;
 use ariel_os_embassy::reexports::embassy_net;
+use ariel_os_log::info;
 
 use embassy_net::IpAddress;
 use embassy_net::udp::{PacketMetadata, UdpMetadata, UdpSocket};

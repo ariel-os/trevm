@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: dtolnay/rust-toolchain@master
         with:
-          # The pinned nightly of Ariel OS v0.4.0
-          toolchain: nightly-2026-01-20
+          # The pinned nightly of Ariel OS v0.5.0
+          toolchain: nightly-2026-04-28
           components: rust-src
         # This is needed for the .cargo/config.toml's include directive to work
         # In real application this file would come from the ariel os repo that

@@ -6,7 +6,7 @@ use alloc::collections::BTreeMap;
 use alloc::string::String;
 use alloc::vec::Vec;
 
-use ariel_os_debug::log::info;
+use ariel_os_log::info;
 
 use coap_handler::{Handler, Reporting};
 
