@@ -11,7 +11,7 @@ resolver = "3"
 license = "MIT OR Apache-2.0"
 version = "0.1.0"
 edition = "2024"
-
+rust-version = "1.95.0"
 
 [workspace.dependencies]
 # Ariel OS imports
@@ -26,7 +26,7 @@ ariel-os-hal = { path = "build/imports/ariel-os/src/ariel-os-hal", default-featu
 ariel-os-sensors = { path = "build/imports/ariel-os/src/ariel-os-sensors", default-features = false }
 ariel-os-sensors-registry = { path = "build/imports/ariel-os/src/ariel-os-sensors-registry", default-features = false }
 
-wasmtime = { version = "43", default-features = false, features = [
+wasmtime = { version = "48", default-features = false, features = [
   "pulley",
   "runtime",
   "component-model",
