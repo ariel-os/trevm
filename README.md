@@ -44,6 +44,6 @@ The various parameters used for initial compilation and precompilation have been
 - [GPIO through Wasm](./examples/gpio/): This example showcases a simple blinky running through a wasm capsule. *Recommended boards for this example*: nrf52840dk, nrf9160dk
 
 ## Further Reading & Reference
-To cite this work and/or to read more about treVM, the reference article is indicated below.
+To cite this work and/or to read more about treVM, the reference article is indicated below and [the pdf can be found on arXiv](https://arxiv.org/pdf/2604.27570)
 
-A. Lavandier, B. Buil, C. Gaber and E. Baccelli, ["treVM: Tiny Rust Embedded Virtual Machines with WASM on Variable Resource-Constrained Hardware,"](https://ieeexplore.ieee.org/document/11659467) 2026 22nd International Conference on Distributed Computing in Smart Systems and the Internet of Things (DCOSS-IoT), Reykjavik, Iceland, 2026, pp. 193-200, doi: 10.1109/DCOSS-IoT69657.2026.00031.
+A. Lavandier, B. Buil, C. Gaber and E. Baccelli, "treVM: Tiny Rust Embedded Virtual Machines with WASM on Variable Resource-Constrained Hardware," 2026 22nd International Conference on Distributed Computing in Smart Systems and the Internet of Things (DCOSS-IoT), Reykjavik, Iceland, 2026, pp. 193-200, doi: 10.1109/DCOSS-IoT69657.2026.00031.
