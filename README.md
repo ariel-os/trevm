@@ -49,7 +49,7 @@ To cite this work and/or to read more about treVM, the reference article is indi
 A. Lavandier, B. Buil, C. Gaber, E. Baccelli, [treVM: Tiny Rust Embedded Virtual Machines with
 WASM on Variable Resource-Constrained Hardware](https://arxiv.org/pdf/2604.27570), IEEE DCOSS-IoT, 2026.
 
-# Copyright & License
+## Copyright & License
 
 treVM is licensed under either of
 
