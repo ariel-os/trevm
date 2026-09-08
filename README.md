@@ -48,3 +48,14 @@ To cite this work and/or to read more about treVM, the reference article is indi
 
 A. Lavandier, B. Buil, C. Gaber, E. Baccelli, [treVM: Tiny Rust Embedded Virtual Machines with
 WASM on Variable Resource-Constrained Hardware](https://arxiv.org/pdf/2604.27570), IEEE DCOSS-IoT, 2026.
+
+## Copyright & License
+
+treVM is licensed under either of
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](https://github.com/ariel-os/ariel-os/blob/main/LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
+- MIT license ([LICENSE-MIT](https://github.com/ariel-os/ariel-os/blob/main/LICENSE-MIT) or https://opensource.org/licenses/MIT)
+
+at your option.
+
+Copyright (C) 2020-2026 Inria.
