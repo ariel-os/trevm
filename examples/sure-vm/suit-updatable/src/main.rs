@@ -89,18 +89,6 @@ async fn suit_update_task() {
             }
         }
 
-        info!("[SUIT] Update authenticated. Requesting drop of old capsule...");
-        VM_DROP_REQUESTS.send(()).await;
-        match VM_STATUS_SIGNAL.receive().await {
-            VmEvent::Dropped => {
-                info!("[SUIT] Capsule dropped. Fetching new capsule...");
-            }
-            other => {
-                info!("[SUIT] Unexpected VM event {:?}", Debug2Format(&other));
-                continue;
-            }
-        }
-
         match fetch_and_verify_update(manifest).await {
             Ok(capsule) => {
                 accepted_sequence_number = Some(

@@ -1,7 +1,7 @@
 use core::{cell::RefCell, net::SocketAddr, str::FromStr};
 
 use alloc::vec::Vec;
-use ariel_os::log::{Debug2Format, error};
+use ariel_os::log::{Debug2Format, error, info};
 use ariel_os::time::Duration;
 use dress_up::manifest::Manifest;
 use dress_up::{AsyncOperatingHooks, Authenticated, SuitManifest};
@@ -14,6 +14,7 @@ use cose_nostd::{
 };
 
 use crate::coap_fetch::{CoapFetchError, get_blockwise};
+use crate::{VM_DROP_REQUESTS, VM_STATUS_SIGNAL, VmEvent};
 
 pub const MAX_CAPSULE_SIZE: usize = 100 * 1024;
 const STAGING_SLOT: u64 = 1;
@@ -92,6 +93,8 @@ pub enum UpdateError {
         phase: SuitPhase,
         error: dress_up::error::Error,
     },
+
+    InternalError,
 }
 
 impl UpdateError {
@@ -297,13 +300,23 @@ impl AsyncOperatingHooks for TrevmSuitHooks {
         let addr = SocketAddr::from_str(addr_str)
             .map_err(|_| self.remember_error(UpdateError::MalformedUri))?;
 
-        self.staging.borrow_mut().clear();
+        info!("[SUIT] Requesting drop of old capsule...");
+        VM_DROP_REQUESTS.send(()).await;
+        match VM_STATUS_SIGNAL.receive().await {
+            VmEvent::Dropped => {
+                info!("[SUIT] Capsule dropped. Fetching new capsule...");
+            }
+            other => {
+                info!("[SUIT] Unexpected VM event {:?}", Debug2Format(&other));
+                return Err(self.remember_error(UpdateError::InternalError));
+            }
+        }
 
-        let body = get_blockwise(addr, path, MAX_CAPSULE_SIZE, Duration::from_secs(1))
-            .await
-            .map_err(|e| self.remember_error(e.into()))?;
+        *self.staging.borrow_mut() =
+            get_blockwise(addr, path, MAX_CAPSULE_SIZE, Duration::from_secs(1))
+                .await
+                .map_err(|e| self.remember_error(e.into()))?;
 
-        *self.staging.borrow_mut() = body;
         Ok(())
     }
 }
