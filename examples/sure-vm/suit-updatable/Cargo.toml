@@ -21,15 +21,9 @@ coap-numbers = "0.2"
 coap-request = "0.2.0-alpha.2"
 coap-request-implementations = "0.1.0-alpha.4"
 
-cose-nostd = { git = "https://codeberg.org/COLORADIO-Project/cose-nostd.git", version = "0.1.0", features = [
-  "p-256",
-  "sign1",
-  "verify",
-] }
+cose-nostd = { git = "https://codeberg.org/COLORADIO-Project/cose-nostd.git", rev = "59053ef78916ff038858b45fdd73ed9389c303f1", features = ["sign1", "p-256", "verify"] }
 
-dress-up = { git = "https://github.com/ariel-os/dress-up", branch = "async", features = [
-  "async",
-] }
+dress-up = { git = "https://github.com/ariel-os/dress-up", rev = "52c06ec6847fb9e60e09cb6a91cab73702db953b" }
 
 embassy-futures = { version = "0.1.1", default-features = false }
 embassy-sync = { version = "0.7.2" }
