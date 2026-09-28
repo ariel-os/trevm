@@ -5367,6 +5367,53 @@ dependencies = [
 ]
 
 [[package]]
+name = "suit-updatable-persistent-no-bindings"
+version = "0.0.0"
+dependencies = [
+ "ariel-os",
+ "ariel-os-bindings",
+ "coap-handler",
+ "coap-handler-implementations",
+ "coap-message",
+ "coap-message-implementations",
+ "coap-message-utils",
+ "coap-numbers",
+ "coap-request",
+ "coap-request-implementations",
+ "cose-nostd",
+ "dress-up",
+ "embassy-sync 0.7.2",
+ "embedded-nal-coap",
+ "generic-array 1.4.1",
+ "uuid",
+ "wasmtime",
+]
+
+[[package]]
+name = "suit-updatable-persistent-with-bindings"
+version = "0.0.0"
+dependencies = [
+ "ariel-os",
+ "ariel-os-bindings",
+ "coap-handler",
+ "coap-handler-implementations",
+ "coap-message",
+ "coap-message-implementations",
+ "coap-message-utils",
+ "coap-numbers",
+ "coap-request",
+ "coap-request-implementations",
+ "cose-nostd",
+ "dress-up",
+ "embassy-sync 0.7.2",
+ "embedded-nal-coap",
+ "generic-array 1.4.1",
+ "rand_core 0.6.4",
+ "uuid",
+ "wasmtime",
+]
+
+[[package]]
 name = "svgbobdoc"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

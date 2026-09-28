@@ -13,3 +13,5 @@ subdirs:
   - sandbox-no-bindings
   - updatable-async
   - suit-updatable
+  - suit-updatable-persistent-no-bindings
+  - suit-updatable-persistent-with-bindings
