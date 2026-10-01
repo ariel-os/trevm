@@ -103,7 +103,7 @@ impl<'a, T: 'static + Default, R: Debug, G: EphemeralCapsule<T, R>> Sandbox<'a, 
         if offset == 0 {
             // Remove the instance if there is one to avoid unecessary RAM usage
             let _ = self.instances.remove(&uri_path);
-            self.last_received_vector.truncate(0);
+            self.last_received_vector.clear()
         }
 
         // If we had any of the content signed, we'd have to take care not to let any of
@@ -127,7 +127,7 @@ impl<'a, T: 'static + Default, R: Debug, G: EphemeralCapsule<T, R>> Sandbox<'a, 
             .try_reserve(payload.len())
             .is_err()
         {
-            self.last_received_vector.truncate(0);
+            self.last_received_vector.clear();
             // FIXME: CoAPError should have such a constructor too (but there's no harm in
             // returning an error through the Ok path).
             return Ok((None, coap_numbers::code::REQUEST_ENTITY_TOO_LARGE));
@@ -151,7 +151,7 @@ impl<'a, T: 'static + Default, R: Debug, G: EphemeralCapsule<T, R>> Sandbox<'a, 
                         "Instantiated capsule based on program of {} bytes.",
                         self.last_received_vector.len()
                     );
-                    self.last_received_vector.truncate(0);
+                    self.last_received_vector.clear();
                 }
             }
             Ok((Some(block1), coap_numbers::code::CREATED))

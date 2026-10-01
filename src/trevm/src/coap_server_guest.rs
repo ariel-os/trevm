@@ -6,7 +6,6 @@ use wasmtime::{
 };
 
 use coap_handler::{Attribute, Handler, Record, Reporting};
-use coap_handler_implementations::{HandlerBuilder, SimpleRendered, new_dispatcher};
 use coap_message_implementations::inmemory_write::GenericMessage;
 
 pub use coap_message_utils::Error as CoAPError;
@@ -178,16 +177,16 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
             panic!("Starting from non-stopped state.");
         };
 
-        let mut store = Store::new(&engine, store_data);
-        let component = unsafe { Component::deserialize_raw(&engine, wasm)? };
-        let mut linker = Linker::<T>::new(&engine);
+        let mut store = Store::new(engine, store_data);
+        let component = unsafe { Component::deserialize_raw(engine, wasm)? };
+        let mut linker = Linker::<T>::new(engine);
         let mut instance = G::instantiate(&mut linker, &mut store, component)?;
 
         let result = instance.run(&mut store);
         self.state = WasmHandlerState::NotRunning {
             store_data: store.into_data(),
         };
-        return result;
+        result
     }
 
     /// Starts running a CoAP server from a provided instance.
@@ -214,9 +213,9 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
             panic!("Starting from non-stopped state.");
         };
 
-        let mut store = Store::new(&engine, store_data);
-        let component = unsafe { Component::deserialize_raw(&engine, wasm)? };
-        let mut linker = Linker::<T>::new(&engine);
+        let mut store = Store::new(engine, store_data);
+        let component = unsafe { Component::deserialize_raw(engine, wasm)? };
+        let mut linker = Linker::<T>::new(engine);
         let mut instance = G::instantiate(&mut linker, &mut store, component)?;
 
         instance.initialize_handler(&mut store).unwrap();
@@ -225,7 +224,7 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
             .map_err(|e| e.into())
             .unwrap()
             .into_iter()
-            .map(|s| StringRecord(s))
+            .map(StringRecord)
             .collect();
         self.state = WasmHandlerState::Running { store, instance };
 
@@ -258,16 +257,6 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
 /// Error indicating that an operation can't be performed while a program has not been stopped.
 #[derive(Debug)]
 pub struct StopFirst;
-
-impl<'w, T: 'static, G: PersistentCapsule<T>> WasmHandlerWrapped<'w, T, G> {
-    pub fn to_handler(self) -> impl Handler + Reporting {
-        let handler = new_dispatcher()
-            .below(&["vm"], self.clone())
-            .at(&["hello"], SimpleRendered("Hello from the host"));
-
-        return handler;
-    }
-}
 
 /// FIXME: use trait function when the WithSortedOptions bound situation is fixed
 mod disable_sort_options_bound {

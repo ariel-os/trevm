@@ -1,3 +1,5 @@
+#![no_std]
+
 mod coap_traits;
 
 mod coap_server_guest;
