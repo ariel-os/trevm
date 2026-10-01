@@ -1,0 +1,6 @@
+subdirs:
+  - ephemeral-no-bindings
+  - ephemeral-with-bindings
+  - persistent-no-bindings
+  - persistent-with-bindings
+  - sandbox-no-bindings
