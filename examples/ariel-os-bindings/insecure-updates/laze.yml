@@ -1,0 +1,12 @@
+apps:
+  - name: insecure-updates
+    selects:
+      - alloc
+      - has_buttons
+      - network
+    env:
+      global:
+        # Default heapsize of the NRF52840DK, the board with the least amount of
+        # RAM that is known to support this example
+        heapsize_required:
+          - "150000"

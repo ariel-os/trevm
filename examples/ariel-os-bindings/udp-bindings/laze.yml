@@ -1,0 +1,14 @@
+apps:
+  - name: udp-bindings
+    selects:
+      - network
+      - alloc
+    env:
+      global:
+        # Under most of the observed heap sizes on the NRF52840DK.
+        # Only relevant for the ESP32 chips which allocate an empty heap by default.
+        heapsize_required:
+          - "100000"
+        # Required to increase the stack size for the rpi-pico2-w
+        executor_stacksize_required:
+          - "16384"

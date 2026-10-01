@@ -1,0 +1,9 @@
+subdirs:
+  - async-bindings
+  - ble-scanner
+  - fake-sensor
+  - gpio
+  - insecure-updates
+  - simple-updates
+  - udp-bindings
+  - updatable-async

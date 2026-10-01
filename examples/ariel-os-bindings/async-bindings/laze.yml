@@ -1,0 +1,14 @@
+apps:
+  - name: async-bindings
+    selects:
+      - hwrng
+      - alloc
+    env:
+      global:
+        # Default heapsize of the NRF52840DK, the board with the least amount of
+        # RAM that is known to support this example
+        heapsize_required:
+          - "100000"
+        # Required to increase the stack size for the rpi-pico2-w
+        executor_stacksize_required:
+          - "16384"
