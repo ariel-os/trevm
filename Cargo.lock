@@ -184,14 +184,6 @@ dependencies = [
  "ariel-os-random",
  "ariel-os-sensors",
  "ariel-os-sensors-registry",
- "coap-handler",
- "coap-handler-implementations",
- "coap-message",
- "coap-message-implementations",
- "coap-message-utils",
- "coap-numbers",
- "coap-request",
- "coap-request-implementations",
  "embassy-futures",
  "rand_core 0.6.4",
  "wasmtime",
@@ -830,7 +822,7 @@ dependencies = [
  "embedded-io 0.6.1",
  "embedded-io-async 0.6.1",
  "futures-intrusive",
- "heapless 0.9.2",
+ "heapless 0.8.0",
 ]
 
 [[package]]
@@ -1343,6 +1335,17 @@ dependencies = [
 [[package]]
 name = "cose-nostd"
 version = "0.1.0"
+source = "git+https://codeberg.org/COLORADIO-Project/cose-nostd.git?rev=59053ef78916ff038858b45fdd73ed9389c303f1#59053ef78916ff038858b45fdd73ed9389c303f1"
+dependencies = [
+ "hex-literal",
+ "minicbor",
+ "p256",
+ "sha2",
+]
+
+[[package]]
+name = "cose-nostd"
+version = "0.1.0"
 source = "git+https://codeberg.org/COLORADIO-Project/cose-nostd.git#47af660e945c2476499e2fce3c7adac1e718df5e"
 dependencies = [
  "hex-literal",
@@ -1724,6 +1727,24 @@ dependencies = [
 name = "dress-up"
 version = "0.1.0"
 source = "git+https://github.com/ariel-os/dress-up?branch=async#0ec541ba6d20423799ba5b2e5f372efd74ab952c"
+dependencies = [
+ "bitflags 2.11.1",
+ "ctutils",
+ "digest",
+ "generic-array 1.4.1",
+ "heapless 0.9.2",
+ "itertools 0.14.0",
+ "minicbor",
+ "num_enum 0.7.6",
+ "sha2",
+ "sha3",
+ "uuid",
+]
+
+[[package]]
+name = "dress-up"
+version = "0.1.1"
+source = "git+https://github.com/ariel-os/dress-up?rev=52c06ec6847fb9e60e09cb6a91cab73702db953b#52c06ec6847fb9e60e09cb6a91cab73702db953b"
 dependencies = [
  "bitflags 2.11.1",
  "ctutils",
@@ -2373,6 +2394,7 @@ dependencies = [
  "coap-numbers",
  "embedded-nal-coap",
  "rand_core 0.6.4",
+ "trevm",
  "wasmtime",
 ]
 
@@ -2389,6 +2411,7 @@ dependencies = [
  "coap-numbers",
  "embedded-nal-coap",
  "rand_core 0.6.4",
+ "trevm",
  "wasmtime",
 ]
 
@@ -3608,10 +3631,12 @@ checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
 
 [[package]]
 name = "jiff"
-version = "0.2.18"
+version = "0.2.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e67e8da4c49d6d9909fe03361f9b620f58898859f5c7aded68351e85e71ecf50"
+checksum = "0ab1baf72f08796de0260609515130699b890ac25f30e610ad894bc5856cafdb"
 dependencies = [
+ "defmt 1.1.0",
+ "jiff-core",
  "jiff-static",
  "log",
  "portable-atomic",
@@ -3620,11 +3645,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "jiff-static"
-version = "0.2.18"
+name = "jiff-core"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0c84ee7f197eca9a86c6fd6cb771e55eb991632f15f2bc3ca6ec838929e6e78"
+checksum = "5e52fe76043ccecc9005d2305ebaadf7d7fc0cc89ca6baa10a94d6bc68c7128c"
 dependencies = [
+ "defmt 1.1.0",
+ "log",
+]
+
+[[package]]
+name = "jiff-static"
+version = "0.2.37"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "378268a1116ad67ae6228701118ac9f491d78fda38a40a1f1a9e1348de6f7212"
+dependencies = [
+ "jiff-core",
  "proc-macro2",
  "quote",
  "syn 2.0.117",
@@ -4321,6 +4357,7 @@ dependencies = [
  "coap-numbers",
  "embedded-nal-coap",
  "rand_core 0.6.4",
+ "trevm",
  "wasmtime",
 ]
 
@@ -4337,6 +4374,7 @@ dependencies = [
  "coap-numbers",
  "embedded-nal-coap",
  "rand_core 0.6.4",
+ "trevm",
  "wasmtime",
 ]
 
@@ -4719,9 +4757,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.12.2"
+version = "1.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "843bc0191f75f3e22651ae5f1e72939ab2f72a4bc30fa80a066bd66edefc24d4"
+checksum = "e10754a14b9137dd7b1e3e5b0493cc9171fdd105e0ab477f51b72e7f3ac0e276"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -4950,6 +4988,7 @@ dependencies = [
  "coap-numbers",
  "embedded-nal-coap",
  "rand_core 0.6.4",
+ "trevm",
  "wasmtime",
 ]
 
@@ -5354,8 +5393,8 @@ dependencies = [
  "coap-numbers",
  "coap-request",
  "coap-request-implementations",
- "cose-nostd",
- "dress-up",
+ "cose-nostd 0.1.0 (git+https://codeberg.org/COLORADIO-Project/cose-nostd.git)",
+ "dress-up 0.1.0",
  "embassy-futures",
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
@@ -5380,12 +5419,9 @@ dependencies = [
  "coap-numbers",
  "coap-request",
  "coap-request-implementations",
- "cose-nostd",
- "dress-up",
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
- "generic-array 1.4.1",
- "uuid",
+ "sure-vm",
  "wasmtime",
 ]
 
@@ -5403,12 +5439,38 @@ dependencies = [
  "coap-numbers",
  "coap-request",
  "coap-request-implementations",
- "cose-nostd",
- "dress-up",
+ "cose-nostd 0.1.0 (git+https://codeberg.org/COLORADIO-Project/cose-nostd.git?rev=59053ef78916ff038858b45fdd73ed9389c303f1)",
+ "dress-up 0.1.1",
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
  "generic-array 1.4.1",
  "rand_core 0.6.4",
+ "sure-vm",
+ "trevm",
+ "uuid",
+ "wasmtime",
+]
+
+[[package]]
+name = "sure-vm"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-embassy",
+ "ariel-os-log",
+ "coap-handler",
+ "coap-handler-implementations",
+ "coap-message",
+ "coap-message-implementations",
+ "coap-message-utils",
+ "coap-numbers",
+ "coap-request",
+ "coap-request-implementations",
+ "cose-nostd 0.1.0 (git+https://codeberg.org/COLORADIO-Project/cose-nostd.git?rev=59053ef78916ff038858b45fdd73ed9389c303f1)",
+ "dress-up 0.1.1",
+ "embassy-sync 0.7.2",
+ "embassy-time",
+ "generic-array 1.4.1",
+ "trevm",
  "uuid",
  "wasmtime",
 ]
@@ -5623,6 +5685,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "trevm"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-log",
+ "coap-handler",
+ "coap-handler-implementations",
+ "coap-message",
+ "coap-message-implementations",
+ "coap-message-utils",
+ "coap-numbers",
+ "coap-request",
+ "coap-request-implementations",
+ "wasmtime",
+]
+
+[[package]]
 name = "trouble-host"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5740,6 +5818,7 @@ dependencies = [
  "embedded-nal-coap",
  "once_cell",
  "rand_core 0.6.4",
+ "trevm",
  "wasmtime",
 ]
 

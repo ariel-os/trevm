@@ -1,7 +1,12 @@
 [workspace]
 members = [
-  "examples/[a-z]*",
+  "examples/ariel-os-bindings/[a-z]*",
+  "examples/trevm/[a-z]*",
+  "examples/sure-vm/[a-z]*",
+
   "src/ariel-os-bindings",
+  "src/trevm",
+  "src/sure-vm",
 ]
 
 exclude = ["build/", "payloads/"]
@@ -38,6 +43,9 @@ rand_core = { version = " 0.6.4", default-features = false }
 
 trouble-host = { version = "0.5.0" }
 
+ariel-os-bindings = { path = "src/ariel-os-bindings/" }
+trevm = { path = "src/trevm" }
+sure-vm = { path = "src/sure-vm" }
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = [
