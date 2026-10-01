@@ -14,9 +14,7 @@ use wasmtime::{Config, Engine, Store};
 use coap_handler::Handler;
 use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder, new_dispatcher};
 
-use trevm::{
-    CanInstantiate, CoAPError, EphemeralCapsule, WasmHandler, WasmHandlerWrapped,
-};
+use trevm::{CanInstantiate, CoAPError, EphemeralCapsule, WasmHandler, WasmHandlerWrapped};
 
 use ariel_os_bindings::wasm::ArielOSHost;
 

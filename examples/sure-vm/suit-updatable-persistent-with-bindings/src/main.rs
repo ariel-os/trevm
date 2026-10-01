@@ -3,10 +3,8 @@
 
 extern crate alloc;
 
-
-use alloc::{vec::Vec, string::String};
 use alloc::boxed::Box;
-
+use alloc::{string::String, vec::Vec};
 
 use ariel_os::coap::coap_run;
 use ariel_os::log::{Debug2Format, error, info, warn};
@@ -22,13 +20,13 @@ use wasmtime::{Config, Engine, Store};
 use ariel_os_bindings::wasm::ArielOSHost;
 
 use sure_vm::{
-    capsule_traits::{PersistentCapsule, CanInstantiate},
+    capsule_traits::{CanInstantiate, PersistentCapsule},
     handler::SuitUpdatablePersistentCapsule,
-    suit::{build_and_authenticate_manifest, fetch_and_verify_update}
+    suit::{build_and_authenticate_manifest, fetch_and_verify_update},
 };
 
-mod sensor;
 mod coap_fetch;
+mod sensor;
 
 bindgen!({
     world: "example-persistent-with-bindings",
@@ -44,7 +42,6 @@ static SUIT_VERIFY_SIGNAL: Signal<CriticalSectionRawMutex, (u64, Box<[u8]>)> = S
 static UPDATE_RESULTS: Signal<CriticalSectionRawMutex, Result<(u64, Vec<u8>), ()>> = Signal::new();
 
 pub const PUBKEY_P256: &[u8; 65] = include_bytes!("../suit/demo-public-key-p256.bin");
-
 
 #[ariel_os::task(autostart)]
 async fn main() {
@@ -65,14 +62,13 @@ async fn main() {
 
     let engine = Engine::new(&config).unwrap();
 
-    let control: SuitUpdatablePersistentCapsule<'_, ArielOSHost, ExamplePersistentWithBindings, _> = SuitUpdatablePersistentCapsule::new(&engine, &SUIT_VERIFY_SIGNAL, &UPDATE_RESULTS);
+    let control: SuitUpdatablePersistentCapsule<'_, ArielOSHost, ExamplePersistentWithBindings, _> =
+        SuitUpdatablePersistentCapsule::new(&engine, &SUIT_VERIFY_SIGNAL, &UPDATE_RESULTS);
 
     let handler = control.to_handler();
     info!("Starting CoAP handler");
     coap_run(handler).await;
 }
-
-
 
 impl CanInstantiate<ArielOSHost> for ExamplePersistentWithBindings {
     fn instantiate(
@@ -135,7 +131,9 @@ impl PersistentCapsule<ArielOSHost> for ExamplePersistentWithBindings {
             .ariel_wasm_bindings_coap_server_guest()
             .call_report(store)
         {
-            Ok(handler_init_rep) => handler_init_rep.map_err(|_| CoapError::internal_server_error()),
+            Ok(handler_init_rep) => {
+                handler_init_rep.map_err(|_| CoapError::internal_server_error())
+            }
             Err(wasm_error) => {
                 error!(
                     "The capsule has crashed at startup, CoAP requests to it will return 5.00 \n{}",
@@ -147,28 +145,30 @@ impl PersistentCapsule<ArielOSHost> for ExamplePersistentWithBindings {
     }
 }
 
-
 #[ariel_os::task(autostart)]
 async fn coap_fetching() {
     info!("Waiting for a Manifest ");
     loop {
         let (last_accepted_sequence_number, manifest) = SUIT_VERIFY_SIGNAL.wait().await;
 
-        let (manifest, sequence_number) = match build_and_authenticate_manifest(&manifest, PUBKEY_P256) {
-            Ok(m) => m,
-            Err(e) => {
-                info!("SUIT Update rejected: {:?}", Debug2Format(&e));
-                UPDATE_RESULTS.signal(Err(()));
-                continue;
-            }
-        };
-        info!("Received a SUIT manifest with sequence number: {:?}", sequence_number);
+        let (manifest, sequence_number) =
+            match build_and_authenticate_manifest(&manifest, PUBKEY_P256) {
+                Ok(m) => m,
+                Err(e) => {
+                    info!("SUIT Update rejected: {:?}", Debug2Format(&e));
+                    UPDATE_RESULTS.signal(Err(()));
+                    continue;
+                }
+            };
+        info!(
+            "Received a SUIT manifest with sequence number: {:?}",
+            sequence_number
+        );
 
         if last_accepted_sequence_number >= sequence_number {
             info!("SUIT Update rejected");
             continue;
         }
-
 
         match fetch_and_verify_update(manifest, coap_fetch::get_blockwise).await {
             Ok(capsule) => {

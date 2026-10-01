@@ -1,8 +1,8 @@
 use core::{cell::RefCell, net::SocketAddr, str::FromStr};
 
 use alloc::vec::Vec;
-use ariel_os_log::{Debug2Format, error};
 use ariel_os_embassy::api::time::Duration;
+use ariel_os_log::{Debug2Format, error};
 use dress_up::manifest::Manifest;
 use dress_up::{AsyncOperatingHooks, Authenticated, SuitManifest};
 use uuid::Uuid;
@@ -26,14 +26,14 @@ pub fn suit_class_id() -> Uuid {
 
 struct TrevmSuitHooks<F> {
     staging: RefCell<Vec<u8>>,
-    fetch_function: F
+    fetch_function: F,
 }
 
 impl<F> TrevmSuitHooks<F> {
     fn new(fetch: F) -> Self {
         Self {
             staging: RefCell::new(Vec::new()),
-            fetch_function: fetch
+            fetch_function: fetch,
         }
     }
 
@@ -42,8 +42,9 @@ impl<F> TrevmSuitHooks<F> {
     }
 }
 
-impl<E, F> AsyncOperatingHooks for TrevmSuitHooks<F> where
-    for<'a> F: AsyncFnOnce(SocketAddr, &'a str, usize, Duration) -> Result<Vec<u8>, E> + Copy
+impl<E, F> AsyncOperatingHooks for TrevmSuitHooks<F>
+where
+    for<'a> F: AsyncFnOnce(SocketAddr, &'a str, usize, Duration) -> Result<Vec<u8>, E> + Copy,
 {
     type ReadWriteBufferSize = generic_array::typenum::U512;
     async fn match_vendor_id(
@@ -60,7 +61,6 @@ impl<E, F> AsyncOperatingHooks for TrevmSuitHooks<F> where
         uuid: Uuid,
         _component: &dress_up::component::Component<'_>,
     ) -> Result<bool, dress_up::error::Error> {
-
         let ok = uuid == suit_class_id();
         Ok(ok)
     }
@@ -147,7 +147,8 @@ impl<E, F> AsyncOperatingHooks for TrevmSuitHooks<F> where
 
         self.staging.borrow_mut().clear();
 
-        let body = (self.fetch_function)(addr, path, MAX_CAPSULE_SIZE, Duration::from_secs(1)).await
+        let body = (self.fetch_function)(addr, path, MAX_CAPSULE_SIZE, Duration::from_secs(1))
+            .await
             .map_err(|_e| dress_up::error::Error::InvalidCommandSequence { position: 24 })?;
 
         *self.staging.borrow_mut() = body;
@@ -157,54 +158,41 @@ impl<E, F> AsyncOperatingHooks for TrevmSuitHooks<F> where
 
 pub fn build_and_authenticate_manifest<'a>(
     envelope_bytes: &'a impl AsRef<[u8]>,
-    pub_key: &[u8]
+    pub_key: &[u8],
 ) -> Result<(Manifest<'a, Authenticated>, u64), dress_up::error::Error> {
     let suit = SuitManifest::from_bytes(envelope_bytes)
         .authenticate(|cose, payload| verify_cose_signature(cose, payload, pub_key))?;
 
-    let envelope = suit
-        .envelope()?;
+    let envelope = suit.envelope()?;
 
-    let manifest = envelope
-        .manifest()?;
+    let manifest = envelope.manifest()?;
 
-    let version = manifest
-        .version()?;
+    let version = manifest.version()?;
 
     if version != 1 {
         return Err(dress_up::error::Error::UnsupportedManifestVersion);
     }
 
-    let sequence_number = manifest
-        .sequence_number()?;
+    let sequence_number = manifest.sequence_number()?;
 
     Ok((manifest, sequence_number))
 }
 
 pub async fn fetch_and_verify_update<E>(
     manifest: Manifest<'_, Authenticated>,
-    f: impl AsyncFn(SocketAddr, &str, usize, Duration) -> Result<Vec<u8>, E> + Copy
+    f: impl AsyncFn(SocketAddr, &str, usize, Duration) -> Result<Vec<u8>, E> + Copy,
 ) -> Result<Vec<u8>, dress_up::error::Error> {
     let hooks = TrevmSuitHooks::new(f);
 
-    if manifest
-        .has_payload_fetch()?
-    {
-        manifest
-            .async_execute_payload_fetch(&hooks).await?;
+    if manifest.has_payload_fetch()? {
+        manifest.async_execute_payload_fetch(&hooks).await?;
     }
-    if manifest
-        .has_payload_installation()?
-    {
-        manifest
-            .async_execute_payload_installation(&hooks).await?;
+    if manifest.has_payload_installation()? {
+        manifest.async_execute_payload_installation(&hooks).await?;
     }
 
-    if manifest
-        .has_image_validation()?
-    {
-        manifest
-            .async_execute_image_validation(&hooks).await?;
+    if manifest.has_image_validation()? {
+        manifest.async_execute_image_validation(&hooks).await?;
     }
 
     Ok(hooks.into_capsule())
