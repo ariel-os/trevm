@@ -1,32 +1,33 @@
 [package]
 name = "ephemeral-no-bindings"
-license.workspace = true
 edition.workspace = true
+license.workspace = true
 publish = false
-
-[lints]
-workspace = true
 
 [dependencies]
 ariel-os = { workspace = true, features = ["coap", "time"] }
-
 ariel-os-bindings = { workspace = true }
-trevm = { workspace = true }
 
-embedded-nal-coap = "=0.1.0-alpha.5"
-coap-handler-implementations = "0.6.1"
 coap-handler = "0.2.0"
+coap-handler-implementations = "0.6.1"
 coap-message = "0.3.2"
-coap-numbers = "0.2"
 # error_title allows sending out messages; error_request_body_error_position
 # would also be welcome, but so far I don't think wasmtime exports that (plus
 # it probably take a lot of source map magic to make real use of it).
 coap-message-utils = { version = "0.3.0", features = ["error_title"] }
+coap-numbers = "0.2"
 
-wasmtime = { workspace = true, default-features = false, features = [
-  "pulley",
-  "runtime",
-  "component-model",
-] }
+embedded-nal-coap = "=0.1.0-alpha.5"
 
 rand_core = { workspace = true }
+
+trevm = { workspace = true }
+
+wasmtime = { workspace = true, default-features = false, features = [
+  "component-model",
+  "pulley",
+  "runtime",
+] }
+
+[lints]
+workspace = true

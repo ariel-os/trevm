@@ -4236,10 +4236,6 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
-dependencies = [
- "critical-section",
- "portable-atomic",
-]
 
 [[package]]
 name = "once_cell_polyfill"
@@ -5399,7 +5395,6 @@ dependencies = [
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
  "generic-array 1.4.1",
- "once_cell",
  "rand_core 0.6.4",
  "uuid",
  "wasmtime",
@@ -5439,15 +5434,10 @@ dependencies = [
  "coap-numbers",
  "coap-request",
  "coap-request-implementations",
- "cose-nostd 0.1.0 (git+https://codeberg.org/COLORADIO-Project/cose-nostd.git?rev=59053ef78916ff038858b45fdd73ed9389c303f1)",
- "dress-up 0.1.1",
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
- "generic-array 1.4.1",
  "rand_core 0.6.4",
  "sure-vm",
- "trevm",
- "uuid",
  "wasmtime",
 ]
 
@@ -5468,7 +5458,6 @@ dependencies = [
  "cose-nostd 0.1.0 (git+https://codeberg.org/COLORADIO-Project/cose-nostd.git?rev=59053ef78916ff038858b45fdd73ed9389c303f1)",
  "dress-up 0.1.1",
  "embassy-sync 0.7.2",
- "embassy-time",
  "generic-array 1.4.1",
  "trevm",
  "uuid",
@@ -5816,9 +5805,7 @@ dependencies = [
  "embassy-futures",
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
- "once_cell",
  "rand_core 0.6.4",
- "trevm",
  "wasmtime",
 ]
 

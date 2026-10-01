@@ -1,25 +1,28 @@
 [package]
 name = "trevm"
-license.workspace = true
-version.workspace = true
+version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
 ariel-os-log = { workspace = true }
 
-coap-request = { version = "0.2.0-alpha.2" }
-coap-request-implementations = { version = "0.1.0-alpha.4" }
 coap-handler-implementations = { version = "0.6.1" }
 coap-message-implementations = { version = "0.1.8" }
 coap-message-utils = { version = "0.3.0" }
+coap-request-implementations = { version = "0.1.0-alpha.4" }
 
 # Coap Traits Dependencies
-coap-message = { version = "0.3.2"}
-coap-handler = { version = "0.2.0"}
+coap-handler = { version = "0.2.0" }
+coap-message = { version = "0.3.2" }
 coap-numbers = { version = "0.2.2" }
+coap-request = { version = "0.2.0-alpha.2" }
 
-wasmtime = { workspace = true, default-features = false, features = ["component-model"] }
+wasmtime = { workspace = true, default-features = false, features = [
+  "component-model",
+  "runtime",
+] }
 
 [lints]
 workspace = true

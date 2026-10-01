@@ -1,24 +1,20 @@
 [package]
 name = "async-bindings"
-license.workspace = true
 edition.workspace = true
+license.workspace = true
 publish = false
-
-[lints]
-workspace = true
 
 [dependencies]
 ariel-os = { workspace = true, features = ["time"] }
+ariel-os-bindings = { workspace = true, features = ["log", "rng", "time"] }
 ariel-os-boards = { workspace = true }
-ariel-os-bindings = { workspace = true, features = [
-  "log",
-  "time",
-  "rng",
-] }
 
 wasmtime = { workspace = true, default-features = false, features = [
-  "runtime",
-  "pulley",
-  "component-model",
   "async",
+  "component-model",
+  "pulley",
+  "runtime",
 ] }
+
+[lints]
+workspace = true

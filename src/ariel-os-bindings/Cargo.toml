@@ -1,30 +1,30 @@
 [package]
 name = "ariel-os-bindings"
 version = "0.1.0"
-license.workspace = true
 edition.workspace = true
+license.workspace = true
 
 [dependencies]
+ariel-os-alloc = { workspace = true }
+ariel-os-embassy = { workspace = true, optional = true }
+ariel-os-hal = { workspace = true, optional = true }
 ariel-os-log = { workspace = true, optional = true }
 ariel-os-random = { workspace = true, optional = true }
-ariel-os-embassy = { workspace = true, optional = true }
-ariel-os-alloc = { workspace = true }
-ariel-os-hal = { workspace = true, optional = true }
 ariel-os-sensors = { workspace = true, optional = true }
 ariel-os-sensors-registry = { workspace = true, optional = true }
 
-rand_core = { workspace = true, optional = true }
-
-wasmtime = { workspace = true, default-features = false, features = ["component-model"] }
-
 embassy-futures = { version = "0.1.1", default-features = false, optional = true }
 
-[lints]
-workspace = true
+rand_core = { workspace = true, optional = true }
+
+wasmtime = { workspace = true, default-features = false, features = [
+  "component-model",
+  "runtime",
+] }
 
 [features]
-rng = ["dep:rand_core", "dep:ariel-os-random"]
-udp = ["ariel-os-embassy/udp", "ariel-os-embassy/net", "dep:embassy-futures"]
+rng = ["dep:ariel-os-random", "dep:rand_core"]
+udp = ["ariel-os-embassy/net", "ariel-os-embassy/udp", "dep:embassy-futures"]
 time = ["ariel-os-embassy/time", "async"]
 log = ["dep:ariel-os-log"]
 async = ["wasmtime/async"]
@@ -34,4 +34,7 @@ sensors = [
   "dep:ariel-os-sensors-registry",
   "dep:embassy-futures",
 ]
-sensors-async = ["sensors", "async", "dep:ariel-os-log"]
+sensors-async = ["async", "sensors", "dep:ariel-os-log"]
+
+[lints]
+workspace = true
