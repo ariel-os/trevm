@@ -85,6 +85,8 @@ In its current version, `sure-VM` only has examples using the _Persistent_ capsu
 - [Suit Updatable Persistent Capsules without bindings](./examples/sure-vm/suit-updatable-persistent-no-bindings/): This example shows how to extend treVM with SUIT capabilities and other features in the case of persistent capsules without bindings. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1, espressif-esp32-s3-devkitc-1.
 - [Suit Updatable Persistent Capsules with bindings](./examples/sure-vm/suit-updatable-persistent-with-bindings/): This example shows how to extend treVM with SUIT capabilities and other features in the case of persistent capsules with bindings. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1, espressif-esp32-s3-devkitc-1.
 
+There is also an early example of using `sure-vm`'s idea for capsules that run background tasks continuously while monitoring for updates using a CoAP + OSCORE server à la treVM. It can be found in [examples/sure-vm/suit-udpatable](./examples/sure-vm/suit-updatable/).
+
 
 ## Further Reading & Reference
 To cite this work and/or to read more about treVM, the reference article is indicated below.
