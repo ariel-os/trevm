@@ -89,10 +89,10 @@ There is also an early example of using `sure-vm`'s idea for capsules that run b
 
 
 ## Further Reading & Reference
-To cite this work and/or to read more about treVM, the reference article is indicated below.
+To cite and/or to read more about treVM, the reference article is indicated below and [the pdf can be found on arXiv](https://arxiv.org/pdf/2604.27570)
 
-A. Lavandier, B. Buil, C. Gaber, E. Baccelli, [treVM: Tiny Rust Embedded Virtual Machines with
-WASM on Variable Resource-Constrained Hardware][trevm-paper], IEEE DCOSS-IoT, 2026.
+A. Lavandier, B. Buil, C. Gaber and E. Baccelli, "treVM: Tiny Rust Embedded Virtual Machines with WASM on Variable Resource-Constrained Hardware,"2026 22nd International Conference on Distributed Computing in Smart Systems and the Internet of Things (DCOSS-IoT), Reykjavik, Iceland, 2026, pp. 193-200, doi: 10.1109/DCOSS-IoT69657.2026.00031.
+
 
 ## Copyright & License
 
