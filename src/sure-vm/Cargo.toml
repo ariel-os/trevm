@@ -1,0 +1,46 @@
+[package]
+name = "sure-vm"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+ariel-os-embassy = { workspace = true, features = ["time"] }
+ariel-os-log = { workspace = true }
+
+# CoAP Traits Dependencies
+coap-handler = { version = "0.2.0" }
+coap-message = { version = "0.3.2" }
+coap-request = { version = "0.2.0-alpha.2" }
+
+# CoAP impls
+coap-handler-implementations = { version = "0.6.1" }
+coap-message-implementations = { version = "0.1.8" }
+coap-message-utils = { version = "0.3.0" }
+coap-numbers = { version = "0.2.2" }
+coap-request-implementations = { version = "0.1.0-alpha.4" }
+
+# SUIT Related deps
+cose-nostd = { git = "https://codeberg.org/COLORADIO-Project/cose-nostd.git", rev = "59053ef78916ff038858b45fdd73ed9389c303f1", features = [
+  "p-256",
+  "sign1",
+  "verify",
+] }
+dress-up = { git = "https://github.com/ariel-os/dress-up", rev = "52c06ec6847fb9e60e09cb6a91cab73702db953b" }
+generic-array = { version = "1.4.1", default-features = false }
+uuid = { version = "1.23.1", default-features = false, features = ["v5"] }
+
+
+embassy-sync = { version = "0.7.2" }
+
+trevm = { workspace = true }
+
+wasmtime = { workspace = true, default-features = false, features = [
+  "component-model",
+  "runtime",
+] }
+
+
+[lints]
+workspace = true

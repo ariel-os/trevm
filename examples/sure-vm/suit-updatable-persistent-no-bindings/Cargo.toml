@@ -1,0 +1,38 @@
+[package]
+name = "suit-updatable-persistent-no-bindings"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ariel-os = { workspace = true, features = ["coap", "defmt", "i2c", "time"] }
+
+ariel-os-bindings = { workspace = true }
+
+coap-handler = "0.2.0"
+coap-handler-implementations = "0.6.1"
+coap-message = "0.3.2"
+coap-message-implementations = "0.1.8"
+# error_title allows sending out messages; error_request_body_error_position
+# would also be welcome, but so far I don't think wasmtime exports that (plus
+# it probably take a lot of source map magic to make real use of it).
+coap-message-utils = { version = "0.3.0", features = ["error_title"] }
+coap-numbers = "0.2"
+coap-request = "0.2.0-alpha.2"
+coap-request-implementations = "0.1.0-alpha.4"
+
+
+embassy-sync = { version = "0.7.2" }
+
+embedded-nal-coap = "=0.1.0-alpha.5"
+
+sure-vm = { workspace = true }
+
+wasmtime = { workspace = true, default-features = false, features = [
+  "component-model",
+  "pulley",
+  "runtime",
+] }
+
+[lints]
+workspace = true

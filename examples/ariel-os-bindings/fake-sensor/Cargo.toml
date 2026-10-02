@@ -1,0 +1,30 @@
+[package]
+name = "fake-sensor"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ariel-os = { workspace = true, features = [
+  "alloc",
+  "random",
+  "sensors",
+  "time",
+] }
+ariel-os-bindings = { workspace = true, features = [
+  "log",
+  "sensors-async",
+  "time",
+] }
+ariel-os-boards = { workspace = true }
+
+wasmtime = { workspace = true, default-features = false, features = [
+  "component-model",
+  "pulley",
+  "runtime",
+] }
+
+rand_core = { workspace = true }
+
+[lints]
+workspace = true

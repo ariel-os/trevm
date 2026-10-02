@@ -1,0 +1,25 @@
+[package]
+name = "insecure-updates"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ariel-os = { workspace = true, features = [
+  "external-interrupts",
+  "time",
+  "udp",
+] }
+ariel-os-bindings = { workspace = true, features = ["log", "time"] }
+ariel-os-boards = { workspace = true }
+
+embassy-futures = { version = "0.1.1", default-features = false }
+wasmtime = { workspace = true, default-features = false, features = [
+  "async",
+  "component-model",
+  "pulley",
+  "runtime",
+] }
+
+[lints]
+workspace = true

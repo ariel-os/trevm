@@ -1,0 +1,19 @@
+[package]
+name = "udp-bindings"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ariel-os = { workspace = true, features = ["time"] }
+ariel-os-bindings = { workspace = true, features = ["log", "udp"] }
+ariel-os-boards = { workspace = true }
+
+wasmtime = { workspace = true, default-features = false, features = [
+  "component-model",
+  "pulley",
+  "runtime",
+] }
+
+[lints]
+workspace = true

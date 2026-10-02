@@ -1,0 +1,24 @@
+[package]
+name = "gpio-wasm"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ariel-os = { workspace = true, features = [
+  "alloc",
+  "external-interrupts",
+  "time",
+] }
+ariel-os-bindings = { workspace = true, features = ["gpio", "log", "time"] }
+ariel-os-boards = { workspace = true }
+
+wasmtime = { workspace = true, default-features = false, features = [
+  "async",
+  "component-model",
+  "pulley",
+  "runtime",
+] }
+
+[lints]
+workspace = true

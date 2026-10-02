@@ -1,44 +1,48 @@
 [workspace]
-members = [
-  "examples/[a-z]*",
-  "src/ariel-os-bindings",
-]
-
-exclude = ["build/", "payloads/"]
 resolver = "3"
+members = [
+  "examples/ariel-os-bindings/[a-z]*",
+  "examples/sure-vm/[a-z]*",
+  "examples/trevm/[a-z]*",
+
+  "src/ariel-os-bindings",
+  "src/sure-vm",
+  "src/trevm",
+]
+exclude = ["build/", "payloads/"]
 
 [workspace.package]
-license = "MIT OR Apache-2.0"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.95.0"
+license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
 # Ariel OS imports
 ariel-os = { path = "build/imports/ariel-os/src/ariel-os" }
 ariel-os-alloc = { path = "build/imports/ariel-os/src/ariel-os-alloc", default-features = false }
 ariel-os-boards = { path = "build/imports/ariel-os/src/ariel-os-boards", default-features = false }
-ariel-os-log = { path = "build/imports/ariel-os/src/ariel-os-log", default-features = false }
-ariel-os-embassy = { path = "build/imports/ariel-os/src/ariel-os-embassy", default-features = false }
+
+ariel-os-bindings = { path = "src/ariel-os-bindings/" }
+
 ariel-os-coap = { path = "build/imports/ariel-os/src/ariel-os-coap", default-features = false }
-ariel-os-random = { path = "build/imports/ariel-os/src/ariel-os-random", default-features = false }
+ariel-os-embassy = { path = "build/imports/ariel-os/src/ariel-os-embassy", default-features = false }
 ariel-os-hal = { path = "build/imports/ariel-os/src/ariel-os-hal", default-features = false }
+ariel-os-log = { path = "build/imports/ariel-os/src/ariel-os-log", default-features = false }
+ariel-os-random = { path = "build/imports/ariel-os/src/ariel-os-random", default-features = false }
 ariel-os-sensors = { path = "build/imports/ariel-os/src/ariel-os-sensors", default-features = false }
 ariel-os-sensors-registry = { path = "build/imports/ariel-os/src/ariel-os-sensors-registry", default-features = false }
-
-wasmtime = { version = "48", default-features = false, features = [
-  "pulley",
-  "runtime",
-  "component-model",
-] }
 
 embassy-futures = { version = "0.1.1", default-features = false }
 
 rand_core = { version = " 0.6.4", default-features = false }
 
+sure-vm = { path = "src/sure-vm" }
+trevm = { path = "src/trevm" }
+
 trouble-host = { version = "0.5.0" }
 
-
+wasmtime = { version = "48", default-features = false }
 [workspace.lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = [
   'cfg(context, values(any()))',

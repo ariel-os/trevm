@@ -1,15 +1,4 @@
 subdirs:
-  - async-bindings
-  - gpio
-  - udp-bindings
-  - ble-scanner
-  - ephemeral-no-bindings
-  - ephemeral-with-bindings
-  - simple-updates
-  - insecure-updates
-  - persistent-no-bindings
-  - persistent-with-bindings
-  - fake-sensor
-  - sandbox-no-bindings
-  - updatable-async
-  - suit-updatable
+  - ariel-os-bindings
+  - trevm
+  - sure-vm

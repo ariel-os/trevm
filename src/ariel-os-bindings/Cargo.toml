@@ -1,60 +1,40 @@
 [package]
 name = "ariel-os-bindings"
 version = "0.1.0"
-license.workspace = true
 edition.workspace = true
+license.workspace = true
 
 [dependencies]
+ariel-os-alloc = { workspace = true }
+ariel-os-embassy = { workspace = true, optional = true }
+ariel-os-hal = { workspace = true, optional = true }
 ariel-os-log = { workspace = true, optional = true }
 ariel-os-random = { workspace = true, optional = true }
-ariel-os-embassy = { workspace = true, optional = true }
-ariel-os-alloc = { workspace = true }
-ariel-os-hal = { workspace = true, optional = true }
 ariel-os-sensors = { workspace = true, optional = true }
 ariel-os-sensors-registry = { workspace = true, optional = true }
 
+embassy-futures = { version = "0.1.1", default-features = false, optional = true }
+
 rand_core = { workspace = true, optional = true }
-
-coap-request = { version = "0.2.0-alpha.2", optional = true }
-coap-request-implementations = { version = "0.1.0-alpha.4", optional = true }
-coap-handler-implementations = { version = "0.6.1", optional = true }
-coap-message-implementations = { version = "0.1.8", optional = true }
-coap-message-utils = { version = "0.3.0", optional = true }
-
-# Coap Traits Dependencies
-coap-message = { version = "0.3.2", optional = true }
-coap-handler = { version = "0.2.0", optional = true }
-coap-numbers = { version = "0.2.2", optional = true }
 
 wasmtime = { workspace = true, default-features = false, features = [
   "component-model",
+  "runtime",
 ] }
-embassy-futures = { version = "0.1.1", default-features = false, optional = true }
-
-[lints]
-workspace = true
 
 [features]
-rng = ["dep:rand_core", "dep:ariel-os-random"]
-udp = ["ariel-os-embassy/udp", "ariel-os-embassy/net", "dep:embassy-futures"]
+rng = ["dep:ariel-os-random", "dep:rand_core"]
+udp = ["ariel-os-embassy/net", "ariel-os-embassy/udp", "dep:embassy-futures"]
 time = ["ariel-os-embassy/time", "async"]
 log = ["dep:ariel-os-log"]
 async = ["wasmtime/async"]
-coap = [
-  "dep:coap-message",
-  "dep:coap-message-implementations",
-  "dep:coap-message-utils",
-  "dep:coap-handler",
-  "dep:coap-handler-implementations",
-  "dep:coap-request",
-  "dep:coap-request-implementations",
-  "dep:coap-numbers",
-  "dep:ariel-os-log",
-]
 gpio = ["dep:ariel-os-hal"]
 sensors = [
   "dep:ariel-os-sensors",
   "dep:ariel-os-sensors-registry",
   "dep:embassy-futures",
 ]
-sensors-async = ["sensors", "async", "dep:ariel-os-log"]
+sensors-async = ["async", "sensors", "dep:ariel-os-log"]
+
+[lints]
+workspace = true
