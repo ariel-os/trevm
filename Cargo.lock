@@ -1344,17 +1344,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cose-nostd"
-version = "0.1.0"
-source = "git+https://codeberg.org/COLORADIO-Project/cose-nostd.git#47af660e945c2476499e2fce3c7adac1e718df5e"
-dependencies = [
- "hex-literal",
- "minicbor",
- "p256",
- "sha2",
-]
-
-[[package]]
 name = "cpufeatures"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1721,24 +1710,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "415b6ec780d34dcf624666747194393603d0373b7141eef01d12ee58881507d9"
 dependencies = [
  "phf",
-]
-
-[[package]]
-name = "dress-up"
-version = "0.1.0"
-source = "git+https://github.com/ariel-os/dress-up?branch=async#0ec541ba6d20423799ba5b2e5f372efd74ab952c"
-dependencies = [
- "bitflags 2.11.1",
- "ctutils",
- "digest",
- "generic-array 1.4.1",
- "heapless 0.9.2",
- "itertools 0.14.0",
- "minicbor",
- "num_enum 0.7.6",
- "sha2",
- "sha3",
- "uuid",
 ]
 
 [[package]]
@@ -5389,8 +5360,8 @@ dependencies = [
  "coap-numbers",
  "coap-request",
  "coap-request-implementations",
- "cose-nostd 0.1.0 (git+https://codeberg.org/COLORADIO-Project/cose-nostd.git)",
- "dress-up 0.1.0",
+ "cose-nostd",
+ "dress-up",
  "embassy-futures",
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
@@ -5455,8 +5426,8 @@ dependencies = [
  "coap-numbers",
  "coap-request",
  "coap-request-implementations",
- "cose-nostd 0.1.0 (git+https://codeberg.org/COLORADIO-Project/cose-nostd.git?rev=59053ef78916ff038858b45fdd73ed9389c303f1)",
- "dress-up 0.1.1",
+ "cose-nostd",
+ "dress-up",
  "embassy-sync 0.7.2",
  "generic-array 1.4.1",
  "trevm",
