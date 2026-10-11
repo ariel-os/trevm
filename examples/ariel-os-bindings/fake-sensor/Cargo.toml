@@ -5,12 +5,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
-ariel-os = { workspace = true, features = [
-  "alloc",
-  "random",
-  "sensors",
-  "time",
-] }
+ariel-os = { workspace = true, features = ["random", "sensors", "time"] }
 ariel-os-bindings = { workspace = true, features = [
   "log",
   "sensors-async",
