@@ -53,7 +53,7 @@ impl Handler for VmControl {
             }
 
             coap_numbers::code::PUT => {
-                info!("Received PUT request for program ");
+                info!("Received PUT request for SUIT manifest ");
                 let mut block1: Option<u32> = None;
 
                 request
