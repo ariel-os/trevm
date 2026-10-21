@@ -1,0 +1,20 @@
+[package]
+name = "wasm-card"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ariel-os = { workspace = true, features = ["time"] }
+ariel-os-bindings = { workspace = true, features = ["wasm-card"] }
+ariel-os-boards = { workspace = true }
+
+wasmtime = { workspace = true, default-features = false, features = [
+  "async",
+  "component-model",
+  "pulley",
+  "runtime",
+] }
+
+[lints]
+workspace = true

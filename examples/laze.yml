@@ -2,3 +2,4 @@ subdirs:
   - ariel-os-bindings
   - trevm
   - sure-vm
+  - wasm-card

@@ -1,0 +1,9 @@
+package example:example;
+
+world example-crypto {
+    import wasm-card:crypto/ecdsa-api@0.0.1;
+
+    import log-array: func(data: list<u8>);
+
+    export run: func();
+}

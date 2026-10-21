@@ -4,7 +4,6 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 use rand_core::RngCore as _;
-
 use wasmtime::component::{Resource, bindgen};
 
 use super::ArielOSHost;

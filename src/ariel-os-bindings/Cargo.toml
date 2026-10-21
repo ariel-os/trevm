@@ -15,6 +15,11 @@ ariel-os-sensors-registry = { workspace = true, optional = true }
 
 embassy-futures = { version = "0.1.1", default-features = false, optional = true }
 
+# Using v 0.13 instead of v 0.14 because v0.14 relies on rand_core 0.10 which Ariel OS does not support.
+# v 0.13 uses rand_core 0.6.4 which is one of the two versions of the rand_core traits that Ariel support.
+k256 = { version = "0.13", default-features = false, features = ["ecdsa"] }
+# Crypto-common is only usedful with k256 >= 0.14
+# crypto-common = { version = "0.2.2", default-features = false }
 rand_core = { workspace = true, optional = true }
 
 wasmtime = { workspace = true, default-features = false, features = [
@@ -35,6 +40,8 @@ sensors = [
   "dep:embassy-futures",
 ]
 sensors-async = ["async", "sensors", "dep:ariel-os-log"]
+
+wasm-card = ["ariel-os-random/csprng", "dep:ariel-os-log"]
 
 [lints]
 workspace = true

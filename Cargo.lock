@@ -126,7 +126,8 @@ dependencies = [
  "ariel-os-sensors",
  "ariel-os-sensors-registry",
  "embassy-futures",
- "rand_core 0.6.4",
+ "k256",
+ "rand_core 0.9.3",
  "wasmtime",
 ]
 
@@ -366,6 +367,8 @@ name = "ariel-os-random"
 version = "0.6.0"
 dependencies = [
  "embassy-sync 0.7.2",
+ "getrandom 0.3.4",
+ "rand_chacha",
  "rand_core 0.6.4",
  "rand_core 0.9.3",
  "rand_pcg",
@@ -2255,7 +2258,7 @@ dependencies = [
  "coap-message-utils",
  "coap-numbers",
  "embedded-nal-coap",
- "rand_core 0.6.4",
+ "rand_core 0.9.3",
  "trevm",
  "wasmtime",
 ]
@@ -2272,7 +2275,7 @@ dependencies = [
  "coap-message-utils",
  "coap-numbers",
  "embedded-nal-coap",
- "rand_core 0.6.4",
+ "rand_core 0.9.3",
  "trevm",
  "wasmtime",
 ]
@@ -2704,7 +2707,7 @@ dependencies = [
  "ariel-os",
  "ariel-os-bindings",
  "ariel-os-boards",
- "rand_core 0.6.4",
+ "rand_core 0.9.3",
  "wasmtime",
 ]
 
@@ -3476,6 +3479,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "k256"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f6e3919bbaa2945715f0bb6d3934a173d1e9a59ac23767fbaaef277265a7411b"
+dependencies = [
+ "cfg-if",
+ "ecdsa",
+ "elliptic-curve",
+ "sha2",
+]
+
+[[package]]
 name = "keccak"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4145,7 +4160,7 @@ dependencies = [
  "coap-message-utils",
  "coap-numbers",
  "embedded-nal-coap",
- "rand_core 0.6.4",
+ "rand_core 0.9.3",
  "trevm",
  "wasmtime",
 ]
@@ -4162,7 +4177,7 @@ dependencies = [
  "coap-message-utils",
  "coap-numbers",
  "embedded-nal-coap",
- "rand_core 0.6.4",
+ "rand_core 0.9.3",
  "trevm",
  "wasmtime",
 ]
@@ -4379,6 +4394,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ppv-lite86"
+version = "0.2.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85eae3c4ed2f50dcfe72643da4befc30deadb458a9b590d720cde2f2b1e97da9"
+dependencies = [
+ "zerocopy",
+]
+
+[[package]]
 name = "precomputed-hash"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4506,6 +4530,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ca0ecfa931c29007047d1bc58e623ab12e5590e8c7cc53200d5202b69266d8a"
 dependencies = [
  "rand_core 0.6.4",
+]
+
+[[package]]
+name = "rand_chacha"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3022b5f1df60f26e1ffddd6c66e8aa15de382ae63b3a0c1bfc0e4d3e3f325cb"
+dependencies = [
+ "ppv-lite86",
+ "rand_core 0.9.3",
 ]
 
 [[package]]
@@ -4770,7 +4804,7 @@ dependencies = [
  "coap-message-utils",
  "coap-numbers",
  "embedded-nal-coap",
- "rand_core 0.6.4",
+ "rand_core 0.9.3",
  "trevm",
  "wasmtime",
 ]
@@ -5182,7 +5216,7 @@ dependencies = [
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
  "generic-array 1.4.1",
- "rand_core 0.6.4",
+ "rand_core 0.9.3",
  "uuid",
  "wasmtime",
 ]
@@ -5223,7 +5257,7 @@ dependencies = [
  "coap-request-implementations",
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
- "rand_core 0.6.4",
+ "rand_core 0.9.3",
  "sure-vm",
  "wasmtime",
 ]
@@ -5512,9 +5546,9 @@ dependencies = [
 
 [[package]]
 name = "typenum"
-version = "1.19.0"
+version = "1.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "562d481066bde0658276a35467c4af00bdc6ee726305698a55b86e61d7ad82bb"
+checksum = "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20"
 
 [[package]]
 name = "typewit"
@@ -5592,7 +5626,7 @@ dependencies = [
  "embassy-futures",
  "embassy-sync 0.7.2",
  "embedded-nal-coap",
- "rand_core 0.6.4",
+ "rand_core 0.9.3",
  "wasmtime",
 ]
 
@@ -5775,6 +5809,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cbc538057e648b67f72a982e708d485b2efa771e1ac05fec311f9f63e5800db4"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "wasm-card"
+version = "0.0.0"
+dependencies = [
+ "ariel-os",
+ "ariel-os-bindings",
+ "ariel-os-boards",
+ "wasmtime",
 ]
 
 [[package]]

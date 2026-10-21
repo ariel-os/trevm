@@ -1,0 +1,26 @@
+package wasm-card:crypto@0.0.1;
+
+interface ecdsa-api {
+  /// Represents a handle to a public key
+  resource public-key {
+    print: func();
+  }
+  /// Represents a handle to a private key
+  resource private-key {
+    print: func();
+  }
+
+  /// Generate an ecdsa private/public keypair
+  generate: func() -> tuple<public-key,private-key>;
+
+  /// SHA256 hashing
+  hash: func(data: list<u8>) -> list<u8>;
+
+
+  /// Scalar multiplication by the curve generator
+
+}
+
+world ecdsa {
+  import ecdsa-api;
+}
