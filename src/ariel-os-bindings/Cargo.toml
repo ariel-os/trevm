@@ -35,6 +35,7 @@ sensors = [
   "dep:embassy-futures",
 ]
 sensors-async = ["async", "sensors", "dep:ariel-os-log"]
+resource-limiting = []
 
 [lints]
 workspace = true
