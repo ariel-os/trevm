@@ -2,13 +2,15 @@
 
 set -e
 
-# ariel-os-bindings-example
+# ariel-os-bindings example
 for p in ble-scanner gpio udp-bindings
 do
     cargo +nightly-2026-04-28 -Z script precompile_wasm.rs --path payloads/${p}/Cargo.toml -o ./examples/ariel-os-bindings/${p}/payload.cwasm --config payloads/.cargo/config.toml --toolchain +nightly-2026-04-28
 done
 
 cargo +nightly-2026-04-28 -Z script precompile_wasm.rs --path payloads/sensors/Cargo.toml -o examples/ariel-os-bindings/fake-sensor/payload.cwasm --config payloads/.cargo/config.toml --toolchain +nightly-2026-04-28
+
+cargo +nightly-2026-04-28 -Z script precompile_wasm.rs --path payloads/resource-limited/Cargo.toml -o examples/ariel-os-bindings/resource-limited/payload.cwasm --config payloads/.cargo/config.toml --fuel --moving-memory --toolchain +nightly-2026-04-28
 
 # These need fuel, and are usable also with 64bit native
 cargo +nightly-2026-04-28 -Z script precompile_wasm.rs --path payloads/async-bindings/Cargo.toml -o ./examples/ariel-os-bindings/async-bindings/payload.cwasm --config payloads/.cargo/config.toml --fuel --toolchain +nightly-2026-04-28

@@ -4,6 +4,7 @@ subdirs:
   - fake-sensor
   - gpio
   - insecure-updates
+  - resource-limited
   - simple-updates
   - udp-bindings
   - updatable-async

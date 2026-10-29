@@ -1,0 +1,9 @@
+package example:example;
+
+world example-resource-limited {
+    import ariel:wasm-bindings/log-api@0.0.1;
+    import ariel:wasm-bindings/time-api@0.0.1;
+    import ariel:wasm-bindings/rng-api@0.0.1;
+
+    export run: func();
+}
