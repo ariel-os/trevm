@@ -91,6 +91,10 @@ struct Args {
     /// Conserve the intermediate files under `ouput.wasm` and `output.comp.wasm`
     #[arg(long = "conserve-artifacts", short = 'a')]
     conserve: bool,
+
+    /// Activate `memory_may_move` in the `Engine`'s `Config`
+    #[arg(long)]
+    moving_memory: bool,
 }
 
 #[derive(Debug, thiserror::Error, Diagnostic)]
@@ -117,6 +121,7 @@ fn main() -> miette::Result<()> {
         opt_level,
         target,
         conserve,
+        moving_memory,
     } = args;
 
     // Check that the path exists
@@ -290,10 +295,10 @@ fn main() -> miette::Result<()> {
     }
 
     if !module {
-        precompile("temp.wasm", &target, fuel, out, module)?;
+        precompile("temp.wasm", &target, fuel, out, module, moving_memory)?;
         std::fs::remove_file("temp.wasm").map_err(Error::from)?;
     } else {
-        precompile(&new_path, &target, fuel, out, module)?;
+        precompile(&new_path, &target, fuel, out, module, moving_memory)?;
     }
     if std::fs::exists("temp").map_err(Error::from)? {
         std::fs::remove_dir_all("temp").map_err(Error::from)?;
@@ -308,6 +313,7 @@ fn precompile<P: AsRef<Path>>(
     fuel: bool,
     out: PathBuf,
     module: bool,
+    moving_memory: bool,
 ) -> miette::Result<()> {
     std::println!("Precompiling Wasm Module/Component");
     let mut config = Config::new();
@@ -329,7 +335,7 @@ fn precompile<P: AsRef<Path>>(
     // that the module can have is
     // S = min(initial_memory, memory_reservation) + memory_reserved_for_growth
     // since it can grow by reallocating.
-    config.memory_may_move(false);
+    config.memory_may_move(moving_memory);
 
     // Enable fuel instrumentation to prevent malevolent code from running indefinitely in the VM
     config.consume_fuel(fuel);
