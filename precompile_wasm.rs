@@ -11,11 +11,15 @@ thiserror = { version = "2.0.12" }
 
 ---
 #![feature(trim_prefix_suffix)]
-use std::{fs, io, path::{PathBuf, Path}, process::Command};
-use std::io::BufRead as _;
 use std::format;
+use std::io::BufRead as _;
+use std::{
+    fs, io,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
-use clap::{Parser, ValueEnum, builder::PossibleValue};
+use clap::{builder::PossibleValue, Parser, ValueEnum};
 use miette::Diagnostic;
 
 use wasmtime::{Config, Engine, OptLevel};
@@ -40,7 +44,6 @@ impl ValueEnum for CLIOptLevel {
         }
     }
 }
-
 
 /// Simple CLI that takes a compiled .wasm file and turns into a precompiled-component
 #[derive(Parser, Debug)]
@@ -87,7 +90,7 @@ struct Args {
 
     /// Conserve the intermediate files under `ouput.wasm` and `output.comp.wasm`
     #[arg(long = "conserve-artifacts", short = 'a')]
-    conserve: bool
+    conserve: bool,
 }
 
 #[derive(Debug, thiserror::Error, Diagnostic)]
@@ -99,46 +102,63 @@ enum Error {
     Precomp(#[from] wasmtime::Error),
 }
 
-
 fn main() -> miette::Result<()> {
     let args = Args::parse();
 
-    let Args { path, config, toolchain, additional, fuel, output, wasm_tools, module, opt_level, target, conserve } = args;
+    let Args {
+        path,
+        config,
+        toolchain,
+        additional,
+        fuel,
+        output,
+        wasm_tools,
+        module,
+        opt_level,
+        target,
+        conserve,
+    } = args;
 
     // Check that the path exists
     assert!(fs::exists(&path).map_err(Error::from)?);
 
     let new_path = match path.extension().map(std::ffi::OsStr::to_str).flatten() {
         // If it's a already a compiled wasm do nothing
-        Some("wasm") => {
-            path
-        },
+        Some("wasm") => path,
         // Means that it's a directory
         Some("toml") => {
             std::println!("Compiling Library");
             let manifest = io::BufReader::new(fs::File::open(&path).map_err(Error::from)?);
-            let name = manifest.lines().into_iter().filter_map(
-                |line| {
-                    match line {
-                        Ok(l) => {
-                            if l.starts_with("name =") {
-                                Some(l.split("=").nth(1).unwrap().split("\"").nth(1).unwrap().to_owned().replace('-', "_"))
-                            }
-                            else {
-                                None
-                            }
+            let name = manifest
+                .lines()
+                .into_iter()
+                .filter_map(|line| match line {
+                    Ok(l) => {
+                        if l.starts_with("name =") {
+                            Some(
+                                l.split("=")
+                                    .nth(1)
+                                    .unwrap()
+                                    .split("\"")
+                                    .nth(1)
+                                    .unwrap()
+                                    .to_owned()
+                                    .replace('-', "_"),
+                            )
+                        } else {
+                            None
                         }
-                        Err(_) => None
                     }
-                }
-            ).next().unwrap();
+                    Err(_) => None,
+                })
+                .next()
+                .unwrap();
 
-            let mut args: Vec<&str> =  match toolchain  {
+            let mut args: Vec<&str> = match toolchain {
                 Some(toolchain) => {
                     if toolchain.starts_with("+") {
                         vec![toolchain.leak()]
-                    }
-                    else {
+                    } else {
                         vec![format!("+{}", toolchain).leak()]
                     }
                 }
@@ -148,18 +168,30 @@ fn main() -> miette::Result<()> {
                 }
             };
 
-            args.extend(["rustc", "--release", "--manifest-path", path.as_path().to_str().unwrap()]);
+            args.extend([
+                "rustc",
+                "--release",
+                "--manifest-path",
+                path.as_path().to_str().unwrap(),
+            ]);
 
             if let Some(config_path) = config {
-                    match config_path.extension().map(std::ffi::OsStr::to_str).flatten() {
+                match config_path
+                    .extension()
+                    .map(std::ffi::OsStr::to_str)
+                    .flatten()
+                {
                     Some("toml") => {
                         args.push("--config");
                         args.push(config_path.to_string_lossy().into_owned().leak());
                     }
-                    _ => Err(io::Error::new(io::ErrorKind::InvalidInput, "--config should point to a cargo config file")).map_err(Error::from)?,
+                    _ => Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        "--config should point to a cargo config file",
+                    ))
+                    .map_err(Error::from)?,
                 }
             }
-
 
             args.extend(additional.iter().map(String::as_str));
             args.extend(["--target-dir", "temp"]);
@@ -178,22 +210,29 @@ fn main() -> miette::Result<()> {
                 .output()
                 .map_err(Error::from)?;
 
-            let std::process::Output {status, stdout: _, stderr} = output;
+            let std::process::Output {
+                status,
+                stdout: _,
+                stderr,
+            } = output;
 
             if !status.success() {
-                std::println!(
-                    "{}", String::from_utf8_lossy(&stderr)
-                );
+                std::println!("{}", String::from_utf8_lossy(&stderr));
 
-                return Err(io::Error::new(io::ErrorKind::InvalidInput, "Module compilation failed")).map_err(Error::from)?;
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    "Module compilation failed",
+                ))
+                .map_err(Error::from)?;
             }
 
-
             format!("temp/wasm32v1-none/release/{name}.wasm").into()
-        },
-        _ => {
-            Err(io::Error::new(io::ErrorKind::InvalidInput, "--path should be wasm file or a path to a Cargo.toml manifest")).map_err(Error::from)?
         }
+        _ => Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "--path should be wasm file or a path to a Cargo.toml manifest",
+        ))
+        .map_err(Error::from)?,
     };
 
     if !module {
@@ -206,17 +245,29 @@ fn main() -> miette::Result<()> {
         };
         // Note: On Unix, non UTF8 strings are invalid Paths so the unwrap() is infallible
         let output = std::process::Command::new(wasm_tools_path)
-            .args(["component", "new", new_path.as_path().to_str().unwrap(), "-o", "temp.wasm"])
+            .args([
+                "component",
+                "new",
+                new_path.as_path().to_str().unwrap(),
+                "-o",
+                "temp.wasm",
+            ])
             .output()
             .map_err(Error::from)?;
 
-        let std::process::Output {status, stdout: _, stderr} = output;
+        let std::process::Output {
+            status,
+            stdout: _,
+            stderr,
+        } = output;
 
         if !status.success() {
-            std::println!(
-                "{}", String::from_utf8_lossy(&stderr)
-            );
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Componentization failed")).map_err(Error::from)?;
+            std::println!("{}", String::from_utf8_lossy(&stderr));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Componentization failed",
+            ))
+            .map_err(Error::from)?;
         }
     }
 
@@ -251,7 +302,13 @@ fn main() -> miette::Result<()> {
     Ok(())
 }
 
-fn precompile<P: AsRef<Path>>(path: P, target: &str, fuel: bool, out: PathBuf, module: bool) -> miette::Result<()> {
+fn precompile<P: AsRef<Path>>(
+    path: P,
+    target: &str,
+    fuel: bool,
+    out: PathBuf,
+    module: bool,
+) -> miette::Result<()> {
     std::println!("Precompiling Wasm Module/Component");
     let mut config = Config::new();
 
@@ -270,14 +327,15 @@ fn precompile<P: AsRef<Path>>(path: P, target: &str, fuel: bool, out: PathBuf, m
 
     // Disabling this allows runtime optimizations but means that the maximum memory
     // that the module can have is
-    // S = min(initial_memory, memory_reservation) + memory_reserver_for_growth
+    // S = min(initial_memory, memory_reservation) + memory_reserved_for_growth
     // since it can grow by reallocating.
     config.memory_may_move(false);
 
-    // Enable fuel intstrumentation to prevent malevolent code from running indefinitely in the VM
+    // Enable fuel instrumentation to prevent malevolent code from running indefinitely in the VM
     config.consume_fuel(fuel);
 
-    if module { // Ensures that the runtime using this doesn't try to use the component Model
+    if module {
+        // Ensures that the runtime using this doesn't try to use the component Model
         config.wasm_component_model(false);
     }
 
