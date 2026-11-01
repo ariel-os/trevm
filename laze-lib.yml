@@ -1,0 +1,19 @@
+# Entry point when this repository is imported into another laze project. Unlike
+# `laze-project.yml`, it doesn't import Ariel OS: the importing project does, so it picks the
+# version. As the Cargo workspace expects Ariel OS in `build/imports/ariel-os` of this
+# repository, it has to be imported with `dldir: <dldir of this import>/build/imports/ariel-os`.
+modules:
+  - name: trevm
+    help: Settings needed to run WebAssembly capsules with treVM.
+    context: ariel-os
+    selects:
+      - alloc
+    env:
+      global:
+        # Under most of the observed heap sizes on the NRF52840DK.
+        # Only relevant for the ESP32 chips which allocate an empty heap by default.
+        heapsize_required:
+          - "150000"
+        RUSTFLAGS:
+          # Disable SIMD in Wasmtime's interpreter
+          - --cfg pulley_disable_interp_simd
