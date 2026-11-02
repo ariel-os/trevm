@@ -14,14 +14,14 @@ use wasmtime::{Config, Engine, Store};
 use ariel_os_bindings::wasm::ArielOSHost;
 
 bindgen!({
-    world: "example-crypto",
+    world: "mvp",
     path: "../../wit",
     with: {
-        "wasm-card:crypto/ecdsa-api": ariel_os_bindings::wasm::crypto::common,
+        "wasm-card:crypto/crypto-extension": ariel_os_bindings::wasm::wasm_card_crypto::common,
     },
 });
 
-impl ExampleCryptoImports for ArielOSHost {
+impl MvpImports for ArielOSHost {
     fn log_array(&mut self, data: wasmtime::component::__internal::Vec<u8>,) -> () {
         info!("{:?}", Debug2Format(&data));
     }
@@ -45,7 +45,11 @@ async fn run_wasm() -> wasmtime::Result<()> {
     config.wasm_custom_page_sizes(true);
     config
         .target(
+            if cfg!(target_pointer_width = "64") {
+                "pulley64"
+            } else {
                 "pulley32"
+            },
         )
         .unwrap();
 
@@ -60,8 +64,11 @@ async fn run_wasm() -> wasmtime::Result<()> {
 
 
     let engine = Engine::new(&config)?;
-    let component_bytes = include_bytes!("../payload.cwasm").as_slice();
-
+    let component_bytes = if cfg!(target_pointer_width = "64") {
+        include_bytes!("../payload-native.cwasm").as_slice()
+    } else {
+        include_bytes!("../payload.cwasm").as_slice()
+    };
 
     let component = unsafe { Component::deserialize_raw(&engine, component_bytes.into()) }?;
 
@@ -71,8 +78,8 @@ async fn run_wasm() -> wasmtime::Result<()> {
 
     let mut linker = Linker::new(&engine);
 
-    ExampleCrypto::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)?;
-    let bindings = ExampleCrypto::instantiate(&mut store, &component, &linker)?;
+    Mvp::add_to_linker::<_, HasSelf<_>>(&mut linker, |state| state)?;
+    let bindings = Mvp::instantiate(&mut store, &component, &linker)?;
 
     bindings.call_run(&mut store)?;
 

@@ -1,0 +1,40 @@
+package wasm-card:crypto@0.0.1;
+
+interface crypto-extension {
+  /// Public Key
+  resource public-key {
+    print: func();
+  }
+
+  /// Secret Key
+  resource secret-key {
+    print: func();
+  }
+
+  /// ECDSA generation
+  generate: func() -> tuple<public-key, secret-key>;
+
+  /// SHA256 hashing
+  hash: func(data: list<u8>) -> list<u8>;
+
+  /// Point in the mod space of the elliptic curve.
+  resource scalar {
+    print: func();
+  }
+
+  /// Turn a secret-key into a scalar.
+  into-scalar: func(secret-key: secret-key) -> scalar;
+
+  /// Scalar multiplication by the curve generator
+  curve-mult: func(scalar: borrow<scalar>) -> scalar;
+
+  /// Scalar multiplication by another scalar
+  scalar-mult: func(a: borrow<scalar>, b: borrow<scalar>) -> scalar;
+
+  /// Scalar Substraction
+  scalar-sub: func(a: borrow<scalar>, b: borrow<scalar>) -> scalar;
+}
+
+world crypto-extension-impl {
+  import crypto-extension;
+}

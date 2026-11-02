@@ -16,7 +16,10 @@ pub mod gpio;
 #[cfg(feature = "sensors")]
 pub mod sensors;
 
-pub mod crypto;
+
+pub mod wasm_card_crypto;
+
+// pub mod wasi_crypto;
 
 #[derive(Default)]
 pub struct ArielOSHost {
@@ -30,5 +33,5 @@ pub struct ArielOSHost {
     gpio_host: crate::wasm::gpio::ArielGpioHost,
 
     #[cfg(feature = "wasm-card")]
-    wasm_card_host: crate::wasm::crypto::common::WasmCardHost,
+    wasm_card_host: crate::wasm::wasm_card_crypto::common::WasmCardHost,
 }

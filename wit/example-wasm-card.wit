@@ -1,7 +1,9 @@
 package example:example;
 
-world example-crypto {
-    import wasm-card:crypto/ecdsa-api@0.0.1;
+world mvp {
+    // import ariel:wasm-bindings/log-api@0.0.1;
+    import wasm-card:crypto/crypto-extension@0.0.1;
+
 
     import log-array: func(data: list<u8>);
 
