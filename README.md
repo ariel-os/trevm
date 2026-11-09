@@ -62,6 +62,30 @@ Options:
 Some examples that can run with Ariel's `native` target, requires `--target pulley64`. Currently this is only practical with the `ariel-os-bindings/async-bindings` example.
 
 The various parameters used for initial compilation and precompilation have been chosen to optimize the resulting code size and nothing else. See [this document](./Reducing_Size.md) for a more detailled breakdown of the process. In the most recent nightly compilers, the `-Zbuild-std-features` option `panic_immediate_abort` was turned into an unstable panic strategy. The [`payloads/.cargo/config.toml`](./payloads/.cargo/config.toml) config file reflects this change. The old version is still present but commented out.
+
+### Using treVM in your own laze project
+
+treVM can be imported into another laze project through [`laze-lib.yml`](./laze-lib.yml). This file doesn't import Ariel OS itself, so your project picks the Ariel OS version. Because this repository's Cargo workspace expects Ariel OS in `build/imports/ariel-os`, Ariel OS has to be imported into that directory inside the treVM import:
+
+```yaml
+imports:
+  - git:
+      url: https://github.com/ariel-os/trevm
+      branch: main
+    dldir: trevm
+  - git:
+      url: https://github.com/ariel-os/ariel-os
+      tag: v0.6.0
+    dldir: trevm/build/imports/ariel-os
+
+apps:
+  - name: my-app
+    selects:
+      - trevm
+```
+
+Selecting the `trevm` module enables `alloc`, sets the heap size that the Wasm runtime needs, and sets the `RUSTFLAGS` that Wasmtime's interpreter expects. The crates can then be used as path dependencies, for example `trevm = { path = "build/imports/trevm/src/trevm" }`.
+
 ### [`ariel-os-bindings` Examples](./examples/ariel-os-bindings/)
 - [Async Bindings for RNG, Timer, Log](./examples/ariel-os-bindings/async-bindings/): This example shows how Ariel OS can asynchronously run wasm components that yield regularly and that call asynchronous host functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w
 - [UDP Bindings](./examples/ariel-os-bindings/udp-bindings/): This example showcases how a wasm capsule can receive and send UDP packets by using the approriate functions. *Recommended boards for this example*: nrf52840dk, rpi-pico2-w, espressif-esp32-c6-devkitc-1
