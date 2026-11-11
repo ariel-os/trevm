@@ -1,0 +1,11 @@
+[package]
+name = "resource-limited"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wit-bindgen = { version = "0.48.0", default-features = false, features = ["macros"] }
+talc = { git = "https://github.com/COLORADIO-Project/talc", rev = "1634a8d72f7b8bdaeebecf3a22a4a090ae40773e", features = ["1-byte-pages"] }
+
+[lib]
+crate-type = ["cdylib"]

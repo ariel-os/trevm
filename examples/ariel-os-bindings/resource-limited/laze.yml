@@ -1,0 +1,21 @@
+apps:
+  - name: resource-limited
+    context:
+      - espressif-esp32-c6-devkitc-1
+    selects:
+      - alloc
+      - hwrng
+    env:
+      global:
+        heapsize_required:
+          - "200000"
+        RUSTFLAGS:
+          # Disable SIMD in Wasmtime's interpreter
+          - --cfg pulley_disable_interp_simd
+
+modules:
+  - name: monitor-heap
+    env:
+      global:
+        FEATURES:
+          - monitor-heap

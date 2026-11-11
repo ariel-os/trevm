@@ -1,0 +1,31 @@
+[package]
+name = "resource-limited"
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+ariel-os = { workspace = true, features = [
+  "time",
+  "alloc",
+  "random",
+] }
+ariel-os-boards = { workspace = true }
+ariel-os-bindings = { path = "../../../src/ariel-os-bindings", default-features = false, features = [
+  "log",
+  "time",
+  "rng",
+  "resource-limiting",
+] }
+esp-alloc = { version = "0.11.0", default-features = false, optional = true }
+wasmtime = { workspace = true, default-features = false, features = [
+  "runtime",
+  "pulley",
+  "component-model",
+] }
+
+[features]
+monitor-heap = ["dep:esp-alloc"]
