@@ -152,9 +152,9 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
         unsafe { self.start_ff_raw(self.program.as_slice().into(), engine) }
     }
 
-    /// Starts running a CoAP server from a provided instance.
+    /// Runs an ephemeral capsule from the provided code once and returns its result.
     ///
-    /// This expects `self.state` to be currently taken.
+    /// The handler has to be stopped, and is stopped again when this returns.
     ///
     /// # Safety
     ///
@@ -170,19 +170,13 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
         R: Debug,
         G: EphemeralCapsule<T, R>,
     {
-        let WasmHandlerState::NotRunning { store_data } =
-            core::mem::replace(&mut self.state, WasmHandlerState::Taken)
-        else {
-            // FIXME: Just provide a .stop() here and run that before.
-            panic!("Starting from non-stopped state.");
-        };
-
-        let mut store = Store::new(engine, store_data);
+        // Deserialized before the store data is taken, so a failure leaves the handler unchanged.
         let component = unsafe { Component::deserialize_raw(engine, wasm)? };
+        let mut store = Store::new(engine, self.take_store_data());
         let mut linker = Linker::<T>::new(engine);
-        let mut instance = G::instantiate(&mut linker, &mut store, component)?;
 
-        let result = instance.run(&mut store);
+        let result = G::instantiate(&mut linker, &mut store, component)
+            .and_then(|mut instance| instance.run(&mut store));
         self.state = WasmHandlerState::NotRunning {
             store_data: store.into_data(),
         };
@@ -191,7 +185,8 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
 
     /// Starts running a CoAP server from a provided instance.
     ///
-    /// This expects `self.state` to be currently taken.
+    /// The handler has to be stopped. If starting fails, it stays stopped and keeps its store
+    /// data.
     ///
     /// # Safety
     ///
@@ -206,29 +201,62 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
     where
         G: PersistentCapsule<T>,
     {
-        let WasmHandlerState::NotRunning { store_data } =
-            core::mem::replace(&mut self.state, WasmHandlerState::Taken)
-        else {
-            // FIXME: Just provide a .stop() here and run that before.
-            panic!("Starting from non-stopped state.");
-        };
-
-        let mut store = Store::new(engine, store_data);
+        // Deserialized before the store data is taken, so a failure leaves the handler unchanged.
         let component = unsafe { Component::deserialize_raw(engine, wasm)? };
-        let mut linker = Linker::<T>::new(engine);
-        let mut instance = G::instantiate(&mut linker, &mut store, component)?;
+        let mut store = Store::new(engine, self.take_store_data());
 
-        instance.initialize_handler(&mut store).unwrap();
-        self.paths = instance
-            .report_resources(&mut store)
-            .map_err(|e| e.into())
-            .unwrap()
+        match Self::instantiate_persistent(&mut store, component) {
+            Ok((instance, paths)) => {
+                self.paths = paths;
+                self.state = WasmHandlerState::Running { store, instance };
+                Ok(())
+            }
+            Err(err) => {
+                // The store data is kept for the next start.
+                self.state = WasmHandlerState::NotRunning {
+                    store_data: store.into_data(),
+                };
+                Err(err)
+            }
+        }
+    }
+
+    /// Instantiates a persistent capsule, initializes its handler and collects its resources.
+    fn instantiate_persistent(
+        store: &mut Store<T>,
+        component: Component,
+    ) -> wasmtime::Result<(G, Vec<StringRecord>)>
+    where
+        G: PersistentCapsule<T>,
+    {
+        let mut linker = Linker::<T>::new(store.engine());
+        let mut instance = G::instantiate(&mut linker, store, component)?;
+
+        instance.initialize_handler(store)?;
+        let paths = instance
+            .report_resources(store)
+            .map_err(|_| wasmtime::Error::msg("The capsule failed to report its resources."))?
             .into_iter()
             .map(StringRecord)
             .collect();
-        self.state = WasmHandlerState::Running { store, instance };
+        Ok((instance, paths))
+    }
 
-        Ok(())
+    /// Takes the store data out of a stopped handler, leaving it `Taken` until a new state is set.
+    ///
+    /// # Panics
+    ///
+    /// If the handler is not stopped.
+    fn take_store_data(&mut self) -> T {
+        match core::mem::replace(&mut self.state, WasmHandlerState::Taken) {
+            WasmHandlerState::NotRunning { store_data } => store_data,
+            other => {
+                // Put back, so a running capsule is left intact.
+                self.state = other;
+                // FIXME: Just provide a .stop() here and run that before.
+                panic!("Starting from non-stopped state.");
+            }
+        }
     }
 
     pub fn stop(&mut self) {
