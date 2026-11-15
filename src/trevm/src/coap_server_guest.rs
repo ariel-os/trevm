@@ -265,9 +265,10 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
     }
 
     fn require_stopped(&self) -> Result<(), StopFirst> {
-        match self.state {
-            WasmHandlerState::Running { .. } => Err(StopFirst),
-            _ => Ok(()),
+        if self.is_running() {
+            Err(StopFirst)
+        } else {
+            Ok(())
         }
     }
 
@@ -279,6 +280,54 @@ impl<T: 'static, G: CanInstantiate<T>> WasmHandler<T, G> {
         self.require_stopped()?;
 
         Ok(&mut self.program)
+    }
+
+    /// Returns whether a persistent capsule is running.
+    pub fn is_running(&self) -> bool {
+        matches!(self.state, WasmHandlerState::Running { .. })
+    }
+
+    /// Runs `f` with the running capsule and its store, or returns `None` if none is running.
+    ///
+    /// This lets the host call exports of the capsule other than the CoAP server's, e.g. from a
+    /// timer, and reach its store while doing so. If `f` returns an error, the capsule is taken to
+    /// have trapped and is stopped: wasmtime refuses to enter a trapped component instance again.
+    ///
+    /// Errors of `f` should only come from calls into the capsule. Telling traps apart doesn't
+    /// help, as an error returned by a host function leaves the instance unusable as well.
+    pub fn with_running<R>(
+        &mut self,
+        f: impl FnOnce(&mut G, &mut Store<T>) -> wasmtime::Result<R>,
+    ) -> Option<wasmtime::Result<R>> {
+        let WasmHandlerState::Running { store, instance } = &mut self.state else {
+            return None;
+        };
+        let result = f(instance, store);
+        if result.is_err() {
+            self.stop();
+        }
+        Some(result)
+    }
+
+    /// Provides access to the store data, whether a capsule is running or not.
+    pub fn data(&self) -> &T {
+        match &self.state {
+            WasmHandlerState::Running { store, .. } => store.data(),
+            WasmHandlerState::NotRunning { store_data } => store_data,
+            WasmHandlerState::Taken => unreachable!("Store data accessed while starting."),
+        }
+    }
+
+    /// Provides mutable access to the store data, whether a capsule is running or not.
+    ///
+    /// This is how the host exchanges data with what the capsule's imports do, e.g. to pick up
+    /// requests a capsule queued through one of its imports.
+    pub fn data_mut(&mut self) -> &mut T {
+        match &mut self.state {
+            WasmHandlerState::Running { store, .. } => store.data_mut(),
+            WasmHandlerState::NotRunning { store_data } => store_data,
+            WasmHandlerState::Taken => unreachable!("Store data accessed while starting."),
+        }
     }
 }
 
@@ -323,8 +372,8 @@ impl<'w, T: 'static, G: PersistentCapsule<T>> Handler for WasmHandlerWrapped<'w,
         &mut self,
         request: &M,
     ) -> Result<Self::RequestData, Self::ExtractRequestError> {
-        // The handler is exclusive, we don't have to worry about simultaneous access until we
-        // allow the WasmHandler to also perform tasks outside CoAP.
+        // The host may also use the WasmHandler outside CoAP (e.g. through `with_running`), but as
+        // long as it doesn't hold the borrow across await points, this can't conflict.
         let s = &mut *self.0.borrow_mut();
 
         match &mut s.state {
